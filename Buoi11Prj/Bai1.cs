@@ -1,4 +1,13 @@
-﻿using System;
+// Người Thực Hiện: Lưu Huyền Thư
+// MSSV: 3124411300
+// Ngày thực hiện: 9/9/2006
+/* Ý tưởng thực hiện
+- Chạy 2 vòng lặp for i và for j để lấy 2 số liên tiếp kế nhau trong mảng 
+- Nếu 2 số đó là số chẵn và a[i] > a[j] thì đổi chổ cho nhau để thõa điều kiện chẳn tăng dần 
+- Nếu 2 số đó là số lẻ và a[i] < a[j] thì đổi chổ cho nhau để thõa điều kiện lẻ giảm dần
+- Nếu a[i] là số lẻ và a[j] là số chẳn thì đổi chổ để thõa điều liện chẳn nằm trước 
+*/
+using System;
 namespace NNLCSharp.Buoi11
 {
     class Bai1
