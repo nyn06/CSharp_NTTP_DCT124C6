@@ -49,7 +49,7 @@ namespace NNLCSharp.Buoi11
             Daonguoc(c, k);
 
         }
-        public static void Main(string[] args)
+        public static void Main4(string[] args)
         {
             int n;
             Console.Write("Nhap so luong phan tu: ");
