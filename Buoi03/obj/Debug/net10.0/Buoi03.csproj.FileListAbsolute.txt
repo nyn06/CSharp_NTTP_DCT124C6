@@ -1,0 +1,14 @@
+C:\Users\Admin\OneDrive\Tài liệu\NNTLCSHARP\Buoi03\bin\Debug\net10.0\Buoi03.exe
+C:\Users\Admin\OneDrive\Tài liệu\NNTLCSHARP\Buoi03\bin\Debug\net10.0\Buoi03.deps.json
+C:\Users\Admin\OneDrive\Tài liệu\NNTLCSHARP\Buoi03\bin\Debug\net10.0\Buoi03.runtimeconfig.json
+C:\Users\Admin\OneDrive\Tài liệu\NNTLCSHARP\Buoi03\bin\Debug\net10.0\Buoi03.dll
+C:\Users\Admin\OneDrive\Tài liệu\NNTLCSHARP\Buoi03\bin\Debug\net10.0\Buoi03.pdb
+C:\Users\Admin\OneDrive\Tài liệu\NNTLCSHARP\Buoi03\obj\Debug\net10.0\Buoi03.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\OneDrive\Tài liệu\NNTLCSHARP\Buoi03\obj\Debug\net10.0\Buoi03.AssemblyInfoInputs.cache
+C:\Users\Admin\OneDrive\Tài liệu\NNTLCSHARP\Buoi03\obj\Debug\net10.0\Buoi03.AssemblyInfo.cs
+C:\Users\Admin\OneDrive\Tài liệu\NNTLCSHARP\Buoi03\obj\Debug\net10.0\Buoi03.csproj.CoreCompileInputs.cache
+C:\Users\Admin\OneDrive\Tài liệu\NNTLCSHARP\Buoi03\obj\Debug\net10.0\Buoi03.dll
+C:\Users\Admin\OneDrive\Tài liệu\NNTLCSHARP\Buoi03\obj\Debug\net10.0\refint\Buoi03.dll
+C:\Users\Admin\OneDrive\Tài liệu\NNTLCSHARP\Buoi03\obj\Debug\net10.0\Buoi03.pdb
+C:\Users\Admin\OneDrive\Tài liệu\NNTLCSHARP\Buoi03\obj\Debug\net10.0\Buoi03.genruntimeconfig.cache
+C:\Users\Admin\OneDrive\Tài liệu\NNTLCSHARP\Buoi03\obj\Debug\net10.0\ref\Buoi03.dll
