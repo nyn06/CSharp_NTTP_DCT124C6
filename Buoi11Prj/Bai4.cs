@@ -1,3 +1,9 @@
+// Người thực hiện: Lưu Huyền Thư
+// MSSV: 3124411300
+// Ngày thực hiện: 10/9/2026
+/* Ý tưởng thực hiện 
+- Cho chạy vòng lặp for ngược từ vị trí phần tử cao nhất rồi in ra màn hình  
+*/
 using System;
 namespace NNLCSharp.Buoi11
 {

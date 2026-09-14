@@ -1,3 +1,10 @@
+// Người Thực Hiện: Lưu Huyền Thư
+// MSSV: 3124411300
+// Ngày thực hiện: 9/9/2006
+/* Ý tưởng thực hiện
+- Cho chạy vòng lặp for duyệt qua từng phần tử trong mảng 
+- Cho kiểm tra điều kiện nếu nó là số chẵn thì xóa 
+*/
 using System;
 namespace NNLCSharp.Buoi11
 {

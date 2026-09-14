@@ -1,0 +1,15 @@
+D:\NNLTCSharp\Buoi12Prj\obj\Debug\net10.0\Buoi12Prj.GeneratedMSBuildEditorConfig.editorconfig
+D:\NNLTCSharp\Buoi12Prj\obj\Debug\net10.0\Buoi12Prj.AssemblyInfoInputs.cache
+D:\NNLTCSharp\Buoi12Prj\obj\Debug\net10.0\Buoi12Prj.AssemblyInfo.cs
+D:\NNLTCSharp\Buoi12Prj\obj\Debug\net10.0\Buoi12Prj.csproj.CoreCompileInputs.cache
+D:\NNLTCSharp\Buoi12Prj\obj\Debug\net10.0\Buoi12Prj.sourcelink.json
+D:\NNLTCSharp\Buoi12Prj\bin\Debug\net10.0\Buoi12Prj.exe
+D:\NNLTCSharp\Buoi12Prj\bin\Debug\net10.0\Buoi12Prj.deps.json
+D:\NNLTCSharp\Buoi12Prj\bin\Debug\net10.0\Buoi12Prj.runtimeconfig.json
+D:\NNLTCSharp\Buoi12Prj\bin\Debug\net10.0\Buoi12Prj.dll
+D:\NNLTCSharp\Buoi12Prj\bin\Debug\net10.0\Buoi12Prj.pdb
+D:\NNLTCSharp\Buoi12Prj\obj\Debug\net10.0\Buoi12Prj.dll
+D:\NNLTCSharp\Buoi12Prj\obj\Debug\net10.0\refint\Buoi12Prj.dll
+D:\NNLTCSharp\Buoi12Prj\obj\Debug\net10.0\Buoi12Prj.pdb
+D:\NNLTCSharp\Buoi12Prj\obj\Debug\net10.0\Buoi12Prj.genruntimeconfig.cache
+D:\NNLTCSharp\Buoi12Prj\obj\Debug\net10.0\ref\Buoi12Prj.dll

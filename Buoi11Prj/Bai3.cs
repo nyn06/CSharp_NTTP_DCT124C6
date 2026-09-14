@@ -1,3 +1,10 @@
+// Người thực hiện: Lưu Huyền Thư
+// MSSV: 3124411300
+// Ngày thực hiện: 10/9/2026
+/* Ý tưởng thực hiện 
+- Cho chạy vòng lặp for duyệt qua từng phần tử tìm 2 số chẵn liên tiếp a[i], a[i+1] 
+- Nới rộng độ dài dãy thêm 1 sau đó cho người dùng nhập vào số lẻ muốn thêm và thêm vào giữa a[i] và a[i+1]
+*/
 using System;
 using System.Security.Cryptography;
 namespace NNLCSharp.Buoi11
