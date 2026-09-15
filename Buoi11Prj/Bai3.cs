@@ -11,6 +11,7 @@ namespace NNLCSharp.Buoi11
 {
     class Bai3
     {
+        // hàm nhập mảng 
         public static void NhapMang(int[] a, int n)
         {
             for (int i = 0; i < n; i++)
@@ -19,6 +20,7 @@ namespace NNLCSharp.Buoi11
                 a[i] = int.Parse(Console.ReadLine()!);
             }
         }
+        // hàm xuất mảng 
         public static void XuatMang(int[] a, int n)
         {
             for(int i=0; i<n; i++)
@@ -26,8 +28,10 @@ namespace NNLCSharp.Buoi11
                 Console.Write(a[i] + " ");
             }
         }
+        // hàm nới rộng độ dài mảng theo độ dài tùy ý 
         public static int[]  NoiRongMang(int[] a, int sl)
         {
+            // tạo một mảng mới với số lượng phần tử như mảng ban đầu và cộng thêm độ dài muốn nới rộng thêm 
             int [] b = new int [a.Length + sl];
             for (int i = 0; i <= a.Length-1; i++)
             {
@@ -35,20 +39,26 @@ namespace NNLCSharp.Buoi11
             }
             return b;
         }
+        // hàm thêm phần tử tại vị trí xác định 
         public static int[] Themphantu( int [] a, int vt, int giatri)
         {
+            // nới rộng mảng a với độ dài cộng thêm 1
             a= NoiRongMang(a, 1);
             for(int i=a.Length -1; i>=vt; i--)
             {
                 a[i] = a[i-1];
             }
+            
+            // tại vị trí xác định thêm vào giá trị mong muốn 
             a[vt] = giatri;
             return a;
         }
+        // hàm thêm phần tử lẻ 
         public static void Themle(ref int[] a,ref int n)
         {
             for(int i=0; i < n-1; i++)
             {
+                // Nếu 2 phần tử kế nhau đều là số chẳn thì cho người dùng nhập vào 1 số lẻ để thêm vào giữa 2 số đó 
                 if ( a[i] % 2 == 0 && a[i+1] % 2 == 0)
                 {
                     Console.Write("Nhap so le ban muon them vao giua " + a[i] + " va " + a[i+1] + ": ");
@@ -87,16 +97,22 @@ namespace NNLCSharp.Buoi11
         }
         public static void Main3(string[] args)
         {
+            // khai báo n 
             int n;
             Console.Write("Nhap so luong phan tu: ");
+            
+            // nhập n từ bàn phím
             n = int.Parse(Console.ReadLine()!);
+            
+            // khai báo mảng 1 chiều 
             int [] a = new int[n];
-            NhapMang(a, n);
+            
+            NhapMang(a, n); //nhập mảng từ bàn phím 
             Console.WriteLine("Mang vua nhap la: ");
-            XuatMang(a,n);
-            Themle(ref a, ref n);
+            XuatMang(a,n); //xuất mảng vừa nhập ra màn hình 
+            Themle(ref a, ref n); //thêm phần tử lẻ vào giữa 2 số chẵn 
             Console.WriteLine("\nMang sau khi them so le la: ");
-            XuatMang(a, n);
+            XuatMang(a, n); //xuất mảng chẳn lẻ sau khi thêm lẻ 
             test();
         }
 
