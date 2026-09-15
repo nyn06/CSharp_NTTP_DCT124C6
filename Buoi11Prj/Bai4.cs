@@ -9,6 +9,7 @@ namespace NNLCSharp.Buoi11
 {
     class Bai4
     {
+        // hàm nhập mảng 
         public static void NhapMang(int[] a, int n)
         {
             for (int i = 0; i < n; i++)
@@ -17,6 +18,7 @@ namespace NNLCSharp.Buoi11
                 a[i] = int.Parse(Console.ReadLine()!);
             }
         }
+        // hàm xuất mảng 
         public static void XuatMang(int[] a, int n)
         {
             for(int i=0; i<n; i++)
@@ -24,8 +26,10 @@ namespace NNLCSharp.Buoi11
                 Console.Write(a[i] + " ");
             }
         }
+        // hàm đảo ngược mảng 
         public static void Daonguoc(int[] a, int n)
         {
+            //cho chạy từ phần tử cuối cùng về phẩn tử đầu tiên của mảng và in ra màn hình
             for (int i = n -1 ; i >= 0; i--)
             {
                 Console.Write(a[i] + " ");
@@ -57,15 +61,21 @@ namespace NNLCSharp.Buoi11
         }
         public static void Main4(string[] args)
         {
+            // khai báo n 
             int n;
             Console.Write("Nhap so luong phan tu: ");
+
+            // nhập n từ bàn phím
             n = int.Parse(Console.ReadLine()!);
+
+            // khai báo mảng 1 chiều 
             int [] a = new int[n];
-            NhapMang(a, n);
+            
+            NhapMang(a, n); //nhập mảng từ bàn phím 
             Console.WriteLine("\nMang vua nhap la: ");
-            XuatMang(a,n);
+            XuatMang(a,n); //xuất mảng ra màn hình
             Console.WriteLine("\nMang sau khi dao nguoc la: ");
-            Daonguoc(a, n);
+            Daonguoc(a, n); // gọi hàm để đảo ngược mảng 
             test();
         }
 
