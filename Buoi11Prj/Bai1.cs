@@ -12,6 +12,7 @@ namespace NNLCSharp.Buoi11
 {
     class Bai1
     {
+        //Hàm nhập mảng 
         public static void NhapMang(int[] a, int n)
         {
             for (int i = 0; i < n; i++)
@@ -20,6 +21,7 @@ namespace NNLCSharp.Buoi11
                 a[i] = int.Parse(Console.ReadLine()!);
             }
         }
+        // Hàm xuất mảng
         public static void XuatMang(int[] a, int n)
         {
             for(int i=0; i<n; i++)
@@ -27,24 +29,29 @@ namespace NNLCSharp.Buoi11
                 Console.Write(a[i] + " ");
             }
         }
+        // Hàm sắp xếp 
         public static void SapXepMang(int[] a, int n)
         {
+            // cho chạy 2 vòng lặp để xét so sánh cố định 1 phần tử với lần lượt các phần tử còn lại 
             for (int i = 0; i < n-1; i++)
             {
                 for (int j = i + 1; j < n; j++)
                 {
+                    // Nếu cả 2 đều chẳn thì sắp xếp bé lên trên 
                     if (a[i] % 2 == 0 && a[j] % 2 ==0 && a[i] > a[j])
                     {
                         int temp = a[i];
                         a[i] = a[j];
                         a[j] = temp;
                     }
+                    //Nếu cả 2 đều lẻ thì sắp xếp lớn xuống dưới 
                     if (a[i] % 2 != 0 && a[j] % 2 != 0 && a[i] < a[j])
                     {
                         int temp = a[i];
                         a[i] = a[j];
                         a[j] = temp;
-                    }
+                    } 
+                    // nếu 1 chẳn 1 lẻ thì sắp xếp chẳn lên trên 
                     if (a[i] % 2 != 0 && a[j] % 2 == 0)
                     {
                         int temp = a[i];
@@ -54,6 +61,7 @@ namespace NNLCSharp.Buoi11
                 }
             }
         }
+        //testcase
         public static void test()
         {
             int[] a = { 42, 13, 7, 29, 55, 3, 18, 36, 10, 24 };
@@ -79,18 +87,22 @@ namespace NNLCSharp.Buoi11
             XuatMang(c, k);
 
         }
+        
         public static void Main1(string[] args)
         {
+            // khai báo n 
             int n;
             Console.Write("Nhap so luong phan tu: ");
+            // Cho nhập n từ bàn phím
             n = int.Parse(Console.ReadLine()!);
+            // khai báo mảng 1 chiều
             int [] a = new int[n];
-            NhapMang(a, n);
+            NhapMang(a, n); // cho nhập mảng từ bàn phím 
             Console.WriteLine("Mang vua nhap la: ");
-            XuatMang(a,n);
-            SapXepMang(a, n);
+            XuatMang(a,n); // xuất mảng ra màn hình
+            SapXepMang(a, n); // gọi hàm sắp xếp để sắp xếp mảng vừa nhập
             Console.WriteLine("\nMang sau khi sap xep chan truoc le sau, chan tang le giam la: ");
-            XuatMang(a, n);
+            XuatMang(a, n); // xuất mảng sau khi đã sắp xếp xong
             test();
         }
 
