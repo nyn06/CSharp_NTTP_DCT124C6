@@ -10,6 +10,7 @@ namespace NNLCSharp.Buoi11
 {
     class Bai2
     {
+        // hàm nhập mảng 
         public static void NhapMang(int[] a, int n)
         {
             for (int i = 0; i < n; i++)
@@ -18,6 +19,7 @@ namespace NNLCSharp.Buoi11
                 a[i] = int.Parse(Console.ReadLine()!);
             }
         }
+        // hàm xuất mảng 
         public static void XuatMang(int[] a, int n)
         {
             for(int i=0; i<n; i++)
@@ -25,6 +27,7 @@ namespace NNLCSharp.Buoi11
                 Console.Write(a[i] + " ");
             }
         }
+        // hàm xóa 1 phẩn tử tại 1 vị trí xác định 
         public static void Xoa(int[] a, int vt, ref int n)
         {
             for (int i = vt + 1; i < n; i++)
@@ -33,12 +36,15 @@ namespace NNLCSharp.Buoi11
             }
             n--;
         }
+        // hàm xóa các phần tử chẳn 
         public static void Xoachan(int[] a, ref int n)
         {
             for(int i=0; i<n; i++)
             {
+                // cho duyệt qua từng phần tử và kiểm tra nếu là số chẵn thì xóa tại vị trí đó 
                 if ( a[i] % 2 == 0)
                 {
+                    // gọi hàm xóa để xóa phần tử tại vị trí i
                     Xoa(a, i, ref n);
                     i--;
                 }
@@ -73,16 +79,19 @@ namespace NNLCSharp.Buoi11
         }
         public static void Main2(string[] args)
         {
+            // khai báo n
             int n;
             Console.Write("Nhap so luong phan tu: ");
+            // cho nhập n từ bàn phím
             n = int.Parse(Console.ReadLine()!);
+            // khai báo mảng 1 chiều
             int [] a = new int[n];
-            NhapMang(a, n);
+            NhapMang(a, n);  // cho nhập mảng từ bàn phím 
             Console.WriteLine("Mang vua nhap la: ");
-            XuatMang(a,n);
-            Xoachan(a, ref n);
+            XuatMang(a,n);  // in mảng vừa nhập ra màn hình 
+            Xoachan(a, ref n);  // xóa các phần tử chẳn 
             Console.WriteLine("\nMang sau khi xoa so chan la: ");
-            XuatMang(a, n);
+            XuatMang(a, n);  // in ra mảng sau khi đã xóa phần tử chẵn 
             test();
         }
 
