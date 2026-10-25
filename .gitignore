@@ -1,2 +1,10 @@
 bin/
 obj/
+# Visual Studio
+.vs/
+**/bin/
+**/obj/
+
+# Local settings
+*.user
+*.suo
