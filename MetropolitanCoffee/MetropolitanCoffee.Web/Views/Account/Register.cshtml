@@ -1,0 +1,31 @@
+@model RegisterViewModel
+@{
+    Layout = null;
+}
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Register | Metropolitan Coffee</title><link href="~/assets/css/bootstrap.min.css" rel="stylesheet"><link href="~/assets/css/style.css" rel="stylesheet">
+<style>
+body{min-height:100vh;color:white;background:radial-gradient(circle at center,rgba(0,0,0,.35),rgba(0,0,0,.8)),url('/assets/img/bg1.jpg') center/cover no-repeat fixed;font-family:Poppins,sans-serif}
+.auth-card{background:rgba(255,255,255,.1);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.3);border-radius:18px;color:white}
+</style></head><body>
+<nav class="navbar navbar-dark bg-dark"><div class="container"><a asp-controller="Home" asp-action="Index" class="navbar-brand"><img src="~/assets/img/MetropolitanCafeLogo.png" width="36" height="36" class="rounded-circle" alt="logo"> Metropolitan Coffee</a></div></nav>
+<div class="container py-4" style="max-width:760px"><p class="section-title mb-1">Join us</p><h2>Create Account</h2>
+<div class="auth-card p-4 mt-3"><form asp-action="Register" method="post" class="row g-3">
+@Html.AntiForgeryToken()
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="col-md-6"><label asp-for="Username">Username *</label><input asp-for="Username" class="form-control" placeholder="Choose a username" maxlength="50" autocomplete="username" required></div>
+<div class="col-md-6"><label asp-for="Email">Email *</label><input asp-for="Email" type="email" class="form-control" placeholder="Email address" maxlength="100" autocomplete="email" required></div>
+<div class="col-md-6"><label asp-for="FirstName">First name *</label><input asp-for="FirstName" class="form-control" maxlength="50" autocomplete="given-name" required></div>
+<div class="col-md-6"><label asp-for="LastName">Last name *</label><input asp-for="LastName" class="form-control" maxlength="50" autocomplete="family-name" required></div>
+<div class="col-md-6"><label asp-for="Phone">Phone *</label><input asp-for="Phone" class="form-control" maxlength="20" autocomplete="tel" required></div>
+<div class="col-md-6"><label>City</label><input class="form-control" value="Ho Chi Minh" disabled></div>
+<div class="col-md-6"><label asp-for="Ward">Ward *</label><input asp-for="Ward" class="form-control" list="wardList" maxlength="100" placeholder="Type or select ward" required><datalist id="wardList"></datalist></div>
+<div class="col-md-6"><label asp-for="Address">Address (Street, House Number) *</label><input asp-for="Address" class="form-control" maxlength="255" placeholder="Ex: 12 Nguyen Hue Street" required></div>
+<div class="col-md-6"><label asp-for="Password">Password *</label><input asp-for="Password" type="password" class="form-control" minlength="6" autocomplete="new-password" required></div>
+<div class="col-md-6"><label asp-for="ConfirmPassword">Confirm password *</label><input asp-for="ConfirmPassword" type="password" class="form-control" autocomplete="new-password" required></div>
+<div class="col-12"><button type="submit" class="btn btn-dark w-100">Create Account</button></div>
+<div class="col-12 text-center">Already have an account? <a asp-action="Login" class="text-white">Login here</a></div>
+</form></div></div>
+<script>fetch('/assets/data/hcm_wards.json').then(r=>r.json()).then(wards=>{const list=document.getElementById('wardList');wards.forEach(ward=>{const option=document.createElement('option');option.value=ward;list.append(option)})});</script>
+</body></html>

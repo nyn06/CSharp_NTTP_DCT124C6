@@ -110,6 +110,7 @@ BEGIN
         Note NVARCHAR(255) NULL,
         Total DECIMAL(10,2) NOT NULL,
         PaymentMethod NVARCHAR(20) COLLATE Latin1_General_100_BIN2 NOT NULL,
+        CheckoutToken UNIQUEIDENTIFIER NULL,
         Status NVARCHAR(20) COLLATE Latin1_General_100_BIN2 NOT NULL CONSTRAINT DF_Orders_Status DEFAULT N'pending',
         CreatedAt DATETIME2(0) NOT NULL CONSTRAINT DF_Orders_CreatedAt DEFAULT SYSUTCDATETIME(),
         UpdatedAt DATETIME2(0) NOT NULL CONSTRAINT DF_Orders_UpdatedAt DEFAULT SYSUTCDATETIME(),
@@ -181,10 +182,12 @@ BEGIN
         Size NVARCHAR(20) COLLATE Latin1_General_100_BIN2 NOT NULL CONSTRAINT DF_CartItems_Size DEFAULT N'none',
         Ice NVARCHAR(20) COLLATE Latin1_General_100_BIN2 NOT NULL CONSTRAINT DF_CartItems_Ice DEFAULT N'none',
         Sugar NVARCHAR(20) COLLATE Latin1_General_100_BIN2 NOT NULL CONSTRAINT DF_CartItems_Sugar DEFAULT N'none',
+        UnitPrice DECIMAL(10,2) NOT NULL,
         Quantity INT NOT NULL,
         AddedAt DATETIME2(0) NOT NULL CONSTRAINT DF_CartItems_AddedAt DEFAULT SYSUTCDATETIME(),
         CONSTRAINT UQ_CartItems_User_Product_Options UNIQUE (UserId, ProductId, Size, Ice, Sugar),
         CONSTRAINT CK_CartItems_Quantity CHECK (Quantity >= 0),
+        CONSTRAINT CK_CartItems_UnitPrice CHECK (UnitPrice >= 0),
         CONSTRAINT CK_CartItems_Size CHECK (Size IN (N'none', N'S', N'M', N'L')),
         CONSTRAINT CK_CartItems_Ice CHECK (Ice IN (N'none', N'less', N'normal', N'more')),
         CONSTRAINT CK_CartItems_Sugar CHECK (Sugar IN (N'none', N'less', N'normal', N'more'))
@@ -248,6 +251,8 @@ IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Produ
     CREATE INDEX IX_Products_Category_Status_Name ON dbo.Products(CategoryId, Status, Name);
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Orders') AND name = N'IX_Orders_User_CreatedAt')
     CREATE INDEX IX_Orders_User_CreatedAt ON dbo.Orders(UserId, CreatedAt DESC);
+IF COL_LENGTH(N'dbo.Orders', N'CheckoutToken') IS NOT NULL AND NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Orders') AND name = N'UX_Orders_User_CheckoutToken')
+    CREATE UNIQUE INDEX UX_Orders_User_CheckoutToken ON dbo.Orders(UserId, CheckoutToken) WHERE CheckoutToken IS NOT NULL;
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Orders') AND name = N'IX_Orders_Status_UpdatedAt')
     CREATE INDEX IX_Orders_Status_UpdatedAt ON dbo.Orders(Status, UpdatedAt DESC);
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.OrderItems') AND name = N'IX_OrderItems_OrderId')

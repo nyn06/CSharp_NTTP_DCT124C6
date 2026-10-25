@@ -6,10 +6,14 @@
   <h5 class="modal-title w-100 text-center">Customize Your Choice</h5>
 </div>
 
+      <form id="modalCartForm" asp-controller="Cart" asp-action="Add" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" id="modalProductId" name="productId">
+        <input type="hidden" name="returnUrl" value="@Context.Request.Path">
       <div class="modal-body shadow-box">
         <div class="mb-3" id="sizeField">
           <label class="form-label fw-semibold">Cup Size</label>
-          <select id="optSize" class="form-select">
+          <select id="optSize" name="size" class="form-select">
             <option value="S">Small</option>
             <option value="M" selected>Medium</option>
             <option value="L">Large</option>
@@ -18,7 +22,7 @@
 
         <div class="mb-3" id="iceField">
           <label class="form-label fw-semibold">Ice Level</label>
-          <select id="optIce" class="form-select">
+          <select id="optIce" name="ice" class="form-select">
             <option value="less">Less Ice</option>
             <option value="normal" selected>Normal Ice</option>
             <option value="more">More Ice</option>
@@ -27,7 +31,7 @@
 
         <div class="mb-3" id="sugarField">
           <label class="form-label fw-semibold">Sugar Level</label>
-          <select id="optSugar" class="form-select">
+          <select id="optSugar" name="sugar" class="form-select">
             <option value="less">Less Sugar</option>
             <option value="normal" selected>Normal Sugar</option>
             <option value="more">More Sugar</option>
@@ -37,15 +41,27 @@
         <div class="mb-3">
           <label class="form-label fw-semibold">Quantity</label>
           <div class="input-group justify-content-center" style="max-width:160px; margin:auto;">
-            <input type="number" id="optQty" class="form-control text-center" value="1" min="1">
+            <input type="number" id="optQty" name="quantity" class="form-control text-center" value="1" min="1" step="1">
           </div>
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-cancel" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-addToCart" id="confirmAdd">Add to Cart</button>
+        <button type="submit" class="btn btn-addToCart" id="confirmAdd">Add to Cart</button>
       </div>
+      </form>
     </div>
   </div>
 </div>
+<script>
+document.getElementById('optionModal')?.addEventListener('show.bs.modal', event => {
+  const button = event.relatedTarget;
+  if (!button) return;
+  document.getElementById('modalProductId').value = button.dataset.productId;
+  document.getElementById('optQty').value = 1;
+  for (const [field, flag] of [['sizeField','hasSize'], ['iceField','hasIce'], ['sugarField','hasSugar']]) {
+    document.querySelector('#optionModal #' + field).hidden = button.dataset[flag] !== 'true';
+  }
+});
+</script>
 

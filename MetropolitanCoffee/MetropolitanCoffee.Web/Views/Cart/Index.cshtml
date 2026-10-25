@@ -1,0 +1,68 @@
+@model MetropolitanCoffee.Core.Models.CartSnapshot
+@{
+    ViewData["Title"] = "Metropolitan Coffee - Cart";
+}
+<main class="container py-5">
+  <form id="cartStockToken" hidden>@Html.AntiForgeryToken()</form>
+  <p class="section-title mb-1">Your Basket</p><h2>Cart</h2>
+  @if (TempData["CartError"] is string error) { <div class="alert alert-danger">@error</div> }
+  @if (TempData["CartNotice"] is string notice) { <div class="alert alert-success">@notice</div> }
+  <div class="table-responsive"><table class="table table-dark table-hover align-middle">
+    <thead><tr><th>Item</th><th>Options</th><th width="120">Price</th><th width="120">Quantity</th><th width="120">Total</th><th width="60"></th></tr></thead>
+    <tbody>
+    @if (Model.Items.Count == 0) { <tr><td colspan="6" class="text-center">Your cart is empty.</td></tr> }
+    @foreach (var line in Model.Items)
+    {
+      var formId = $"update-{line.Id}";
+      <tr class="@(line.IsSoldOut ? "cart-row-sold-out" : "")" data-line-id="@line.Id" data-product-id="@line.ProductId">
+        <td><div class="cart-item-name-wrap">@line.Name @if (line.IsSoldOut) { <span class="badge-sold-out">SOLD OUT</span> }</div></td>
+        <td>
+          <form id="@formId" asp-action="Update" method="post">@Html.AntiForgeryToken()<input type="hidden" name="lineId" value="@line.Id"></form>
+          @if (line.Size != "none") { <div class="mb-1">Size: <select name="size" form="@formId" class="cart-select" disabled="@line.IsSoldOut"><option value="S" selected="@(line.Size == "S")">S</option><option value="M" selected="@(line.Size == "M")">M</option><option value="L" selected="@(line.Size == "L")">L</option></select></div> }
+          @if (line.Ice != "none") { <div class="mb-1">Ice: <select name="ice" form="@formId" class="cart-select" disabled="@line.IsSoldOut"><option value="less" selected="@(line.Ice == "less")">Less</option><option value="normal" selected="@(line.Ice == "normal")">Normal</option><option value="more" selected="@(line.Ice == "more")">More</option></select></div> }
+          @if (line.Sugar != "none") { <div>Sugar: <select name="sugar" form="@formId" class="cart-select" disabled="@line.IsSoldOut"><option value="less" selected="@(line.Sugar == "less")">Less</option><option value="normal" selected="@(line.Sugar == "normal")">Normal</option><option value="more" selected="@(line.Sugar == "more")">More</option></select></div> }
+        </td>
+        <td>$@line.Price.ToString("N2", System.Globalization.CultureInfo.InvariantCulture)</td>
+        <td><input type="number" name="quantity" form="@formId" value="@line.Quantity" min="1" max="@line.AvailableQuantity" step="1" inputmode="numeric" class="form-control text-center" disabled="@line.IsSoldOut"><button type="submit" form="@formId" class="btn btn-outline-light btn-sm mt-1" disabled="@line.IsSoldOut">Update</button></td>
+        <td>@if (line.IsSoldOut) { <span class="text-danger">—</span> } else { <span>$@line.LineTotal.ToString("N2", System.Globalization.CultureInfo.InvariantCulture)</span> }</td>
+        <td><form asp-action="Remove" method="post">@Html.AntiForgeryToken()<input type="hidden" name="lineId" value="@line.Id"><button class="btn btn-danger btn-sm cart-remove-btn" type="submit" aria-label="Remove @line.Name">&times;</button></form></td>
+      </tr>
+    }
+    </tbody>
+  </table></div>
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <a asp-controller="Home" asp-action="Menu" class="btn btn-outline-light">Continue Shopping</a>
+    <div class="text-end"><div class="mb-2">Subtotal: <strong id="cartSubtotal">$@Model.Subtotal.ToString("N2", System.Globalization.CultureInfo.InvariantCulture)</strong></div>
+      @if (Model.HasSoldOut) { <div class="alert alert-warning py-2 mb-2">Please remove out-of-stock items before checkout.</div> }
+      @if (Model.Items.Count > 0 && !Model.HasSoldOut) { <a asp-controller="Checkout" asp-action="Index" class="btn btn-light">Checkout</a> }
+      else if (Model.Items.Count > 0) { <button class="btn btn-secondary" disabled>Checkout</button> }
+    </div>
+  </div>
+</main>
+<style>
+.cart-select{background:transparent;border:none;border-bottom:1px dashed #999;color:#ddd;padding:0 5px}.cart-select:focus{color:#fff;outline:none;border-bottom-color:#fff}
+.cart-row-sold-out{opacity:.45}.cart-row-sold-out .cart-remove-btn{opacity:1}.cart-item-name-wrap{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.badge-sold-out{background:#dc3545;color:white;font-size:.6rem;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:4px}
+</style>
+@section Scripts {
+<script>
+document.querySelectorAll('.cart-select').forEach(select => select.addEventListener('change', () => select.form.submit()));
+const cartStockState = new Map([...document.querySelectorAll('tr[data-line-id]')].map(row => [Number(row.dataset.lineId), row.classList.contains('cart-row-sold-out')]));
+if (cartStockState.size) setInterval(async () => {
+  try {
+    const response = await fetch('@Url.Action("Stock", "Cart")', { credentials: 'same-origin' });
+    if (!response.ok) return;
+    const data = await response.json();
+    const changed = data.items?.some(item => cartStockState.has(item.id) && cartStockState.get(item.id) !== item.isOutOfStock);
+    if (!changed) return;
+    if (data.items.some(item => item.isOutOfStock && cartStockState.get(item.id) === false)) {
+      await fetch('@Url.Action("SyncStock", "Cart")', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { RequestVerificationToken: document.querySelector('#cartStockToken input[name="__RequestVerificationToken"]').value }
+      });
+    }
+    location.reload();
+  } catch { /* Retry on the next poll. */ }
+}, 3000);
+</script>
+}

@@ -1,0 +1,15 @@
+@model MetropolitanCoffee.Core.Models.CustomerOrder
+@{ ViewData["Title"] = "Order Detail | Metropolitan Coffee"; }
+<main class="container py-5"><a asp-action="Index" class="btn btn-sm btn-outline-dark mb-3">← Order History</a>
+@if (TempData["OrderNotice"] is string notice) { <div class="alert alert-success">@notice</div> }
+<p class="section-title mb-1">Your Purchase</p><h2>Order #@Model.Id</h2>
+<div class="card p-4 mt-3"><p><strong>Date:</strong> @Model.CreatedAt.ToString("MM/dd/yyyy HH:mm")</p>
+<p><strong>Status:</strong> @Model.Status</p><p><strong>Payment:</strong> @Model.PaymentMethod</p>
+<p><strong>Recipient:</strong> @Model.ReceiverName</p><p><strong>Phone:</strong> @Model.ReceiverPhone</p>
+<p><strong>Address:</strong> @Model.ShipAddress, @Model.ShipWard, @Model.ShipCity</p>
+@if (!string.IsNullOrWhiteSpace(Model.Note)) { <p><strong>Note:</strong> @Model.Note</p> }
+<hr><h5>Items</h5>
+@foreach (var line in Model.Items)
+{ <div class="d-flex justify-content-between border-bottom py-2"><span>@line.Name x@line.Quantity @if (line.Size != "none") { <small>Size: @line.Size</small> } @if (line.Ice != "none") { <small>Ice: @line.Ice</small> } @if (line.Sugar != "none") { <small>Sugar: @line.Sugar</small> }</span><strong>$@line.LineTotal.ToString("N2", System.Globalization.CultureInfo.InvariantCulture)</strong></div> }
+<div class="text-end mt-3"><strong>Total: $@Model.Total.ToString("N2", System.Globalization.CultureInfo.InvariantCulture)</strong></div>
+</div></main>

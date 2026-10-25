@@ -1,0 +1,85 @@
+@model CheckoutPageViewModel
+@{
+    ViewData["Title"] = "Metropolitan Coffee - Checkout";
+    var backUrl = Model.BuyNow ? Url.Action("Menu", "Home") : Url.Action("Index", "Cart");
+}
+<div class="container py-5">
+  <p class="section-title mb-1">Secure Payment</p><h2>Checkout</h2>
+  <a href="@backUrl" class="btn btn-back btn-sm mb-3">@(Model.BuyNow ? "← Back to Menu" : "← Back to Cart")</a>
+  <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+  @if (Model.Preview.Issues.Count > 0)
+  {
+    <div class="alert alert-danger"><ul class="mb-0">@foreach (var issue in Model.Preview.Issues) { <li>@issue</li> }</ul></div>
+  }
+  <form asp-action="Place" method="post" id="checkoutForm">
+    @Html.AntiForgeryToken()
+    <input asp-for="BuyNow" type="hidden"><input asp-for="RequestId" type="hidden">
+    <div class="row g-4 mt-1 align-items-stretch">
+      <div class="col-lg-7"><div class="card p-4 h-100">
+        <h5 class="section-subtitle mb-3">Shipping Information</h5>
+        <div class="form-check mb-3"><input class="form-check-input" type="checkbox" id="useAccountAddress"><label class="form-check-label" for="useAccountAddress">Use address from my account</label></div>
+        <div class="d-flex flex-column gap-3">
+          <div><label asp-for="FirstName" class="form-label">First name *</label><input asp-for="FirstName" class="form-control" maxlength="50" required></div>
+          <div><label asp-for="LastName" class="form-label">Last name *</label><input asp-for="LastName" class="form-control" maxlength="50" required></div>
+          <div><label asp-for="Address" class="form-label">Address *</label><input asp-for="Address" class="form-control" maxlength="255" required></div>
+          <div><label asp-for="Ward" class="form-label">Ward *</label><input asp-for="Ward" class="form-control" list="wardList" maxlength="100" required><datalist id="wardList"></datalist></div>
+          <div><label class="form-label">City</label><input class="form-control" value="Ho Chi Minh" readonly></div>
+          <div><label asp-for="Note" class="form-label">Note</label><textarea asp-for="Note" class="form-control" maxlength="255" rows="2" placeholder="Optional (e.g. no ice, call before delivery...)"></textarea></div>
+        </div>
+      </div></div>
+      <div class="col-lg-5"><div class="card p-4 h-100 d-flex flex-column">
+        <h5 class="section-subtitle">Order Summary</h5>
+        <ul class="list-unstyled small mt-3">
+          @foreach (var line in Model.Preview.Items)
+          {
+            <li class="mb-3"><div class="d-flex justify-content-between"><strong>@line.Name x@line.Quantity</strong><span>$@line.LineTotal.ToString("N2", System.Globalization.CultureInfo.InvariantCulture)</span></div>
+              @if (line.Size != "none") { <div class="text-muted small">Size: @line.Size</div> }
+              @if (line.Ice != "none") { <div class="text-muted small">Ice: @line.Ice</div> }
+              @if (line.Sugar != "none") { <div class="text-muted small">Sugar: @line.Sugar</div> }
+            </li>
+          }
+        </ul><hr>
+        <div class="d-flex justify-content-between"><span>Subtotal</span><strong>$@Model.Preview.Subtotal.ToString("N2", System.Globalization.CultureInfo.InvariantCulture)</strong></div>
+        <div class="d-flex justify-content-between"><span>Shipping</span><span>Free</span></div>
+        <div class="d-flex justify-content-between"><span>Tax</span><span>$0.00</span></div><hr>
+        <div class="d-flex justify-content-between total-row"><span>Total</span><strong>$@Model.Preview.Subtotal.ToString("N2", System.Globalization.CultureInfo.InvariantCulture)</strong></div><hr class="my-4">
+        <h5 class="mb-3">Payment Method *</h5>
+        <div class="form-check payment-option"><input asp-for="PaymentMethod" class="form-check-input" type="radio" value="COD" id="payCod" required><label class="form-check-label" for="payCod">Cash on Delivery</label></div>
+        <div class="form-check payment-option"><input asp-for="PaymentMethod" class="form-check-input" type="radio" value="BANK" id="payBank"><label class="form-check-label" for="payBank">Bank Transfer</label></div>
+        <div class="form-check payment-option"><input asp-for="PaymentMethod" class="form-check-input" type="radio" value="ONLINE" id="payOnline"><label class="form-check-label" for="payOnline">Online Payment</label></div>
+        <div id="bankNotice" class="text-danger small mt-1" hidden>Please click Place Order to proceed with the payment.</div>
+        <button id="placeOrderBtn" class="btn btn-light mt-4 w-100" type="button" disabled="@(!Model.Preview.CanPlace)">Place Order</button>
+      </div></div>
+    </div>
+  </form>
+</div>
+<div class="modal fade" id="confirmOrderModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content p-3">
+  <div class="modal-header"><h5 class="modal-title">Confirm your order</h5></div>
+  <div class="modal-body row"><div class="col-md-6"><h6>Order Summary</h6>
+    @foreach (var line in Model.Preview.Items) { <div>@line.Name x@line.Quantity — $@line.LineTotal.ToString("N2", System.Globalization.CultureInfo.InvariantCulture)</div> }
+    <hr><p>Shipping: Free</p><p>Tax: $0.00</p><strong>Total: $@Model.Preview.Subtotal.ToString("N2", System.Globalization.CultureInfo.InvariantCulture)</strong>
+  </div><div class="col-md-6"><h6>Customer Info</h6><p id="confirmShipping"></p><p id="confirmNote"></p><p id="confirmPayment"></p>
+    <div id="confirmBank" hidden><strong>Bank Transfer Info</strong><p>Bank: MB bank<br>Account Number: 128831404<br>Account Name: METROPOLITAN COFFEE</p></div>
+  </div></div>
+  <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button><button type="button" class="btn btn-dark" id="confirmSubmitBtn">Confirm Order</button></div>
+</div></div></div>
+@section Scripts {
+<script>
+const profile = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Profile));
+document.getElementById('useAccountAddress').addEventListener('change', event => {
+  for (const [id, key] of [['FirstName','FirstName'],['LastName','LastName'],['Address','Address'],['Ward','Ward']])
+    document.getElementById(id).value = event.target.checked ? (profile[key] || '') : '';
+});
+fetch('/assets/data/hcm_wards.json').then(r => r.json()).then(wards => { const list=document.getElementById('wardList'); wards.forEach(ward => { const option=document.createElement('option'); option.value=ward; list.append(option); }); });
+document.querySelectorAll('input[name="PaymentMethod"]').forEach(radio => radio.addEventListener('change', () => { document.getElementById('bankNotice').hidden = document.querySelector('input[name="PaymentMethod"]:checked')?.value !== 'BANK'; }));
+document.getElementById('placeOrderBtn').addEventListener('click', () => {
+  const form=document.getElementById('checkoutForm'); if (!form.reportValidity()) return;
+  document.getElementById('confirmShipping').textContent = [document.getElementById('FirstName').value, document.getElementById('LastName').value, document.getElementById('Address').value, document.getElementById('Ward').value, 'Ho Chi Minh'].join(', ');
+  document.getElementById('confirmNote').textContent = document.getElementById('Note').value || 'None';
+  const payment=document.querySelector('input[name="PaymentMethod"]:checked'); document.getElementById('confirmPayment').textContent = payment.nextElementSibling.textContent;
+  document.getElementById('confirmBank').hidden = payment.value !== 'BANK';
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmOrderModal')).show();
+});
+document.getElementById('confirmSubmitBtn').addEventListener('click', function () { this.disabled=true; document.getElementById('checkoutForm').requestSubmit(); });
+</script>
+}

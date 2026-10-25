@@ -106,6 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 
 <!-- ===== FEATURED ===== -->
+@if (TempData["CartError"] is string cartError) { <div class="alert alert-danger container">@cartError</div> }
 <section class="container py-5">
   <p class="section-title mb-2">Signature Picks</p>
   <div class="row g-4" id="homePicks">
@@ -113,6 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
     @if (Model.Count == 0) { <p class="text-muted">No products available right now.</p> }
   </div>
 </section>
+@await Html.PartialAsync("_OptionModal")
 
 <!-- ===== WHY CHOOSE US ===== -->
 <section id="why" class="container pb-5">

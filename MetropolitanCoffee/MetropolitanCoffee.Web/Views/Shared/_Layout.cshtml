@@ -1,3 +1,11 @@
+@inject MetropolitanCoffee.Services.CartService CartService
+@{
+  var cartQuantity = 0;
+  if (User.Identity?.IsAuthenticated == true && int.TryParse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, out var currentUserId))
+  {
+    cartQuantity = (await CartService.GetAsync(currentUserId)).TotalQuantity;
+  }
+}
 <!doctype html>
 <html lang="en"><head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,19 +29,44 @@
           <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Menu" ? "active" : "")" href="@Url.Action("Menu", "Home")">Menu</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#" aria-disabled="true" title="Cart chưa triển khai">Cart <span class="badge text-bg-light" id="navCartQty">0</span></a>
+          <a class="nav-link" asp-controller="Cart" asp-action="Index">Cart <span class="badge text-bg-light" id="navCartQty">@cartQuantity</span></a>
         </li>
-        <li class="nav-item"><a class="nav-link" href="#" aria-disabled="true" title="Orders chưa triển khai">Orders</a></li>
+        <li class="nav-item"><a class="nav-link" asp-controller="Orders" asp-action="Index">Orders</a></li>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-            Account
+            @(User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Account")
           </a>
-          <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end"><li><span class="dropdown-item-text">Account chưa triển khai</span></li></ul>
+          <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+              <li><span class="dropdown-item-text">Profile (coming later)</span></li>
+              <li><button class="dropdown-item text-danger" type="button" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</button></li>
+            }
+            else
+            {
+              <li><a class="dropdown-item" asp-controller="Account" asp-action="Login">Login</a></li>
+              <li><a class="dropdown-item" asp-controller="Account" asp-action="Register">Register</a></li>
+            }
+          </ul>
         </li>
       </ul>
     </div>
   </div>
 </nav>
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+  <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title w-100 text-center" id="logoutTitle">Logout</h5></div>
+      <div class="modal-body text-center">Are you sure you want to log out?</div>
+      <div class="modal-footer justify-content-center">
+        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">No</button>
+        <form asp-controller="Account" asp-action="Logout" method="post">@Html.AntiForgeryToken()<button class="btn btn-danger" type="submit">Yes</button></form>
+      </div>
+    </div></div>
+  </div>
+}
 
 
 @RenderBody()

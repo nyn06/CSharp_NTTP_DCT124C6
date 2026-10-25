@@ -21,7 +21,9 @@
           }
           else
           {
-            <button type="button" class="btn btn-sm btn-add" disabled title="Cart chưa triển khai">Add</button>
+            <button type="button" class="btn btn-sm btn-add" data-bs-toggle="modal" data-bs-target="#optionModal"
+                    data-product-id="@Model.Id" data-has-size="@Model.HasSize.ToString().ToLowerInvariant()"
+                    data-has-ice="@Model.HasIce.ToString().ToLowerInvariant()" data-has-sugar="@Model.HasSugar.ToString().ToLowerInvariant()">Add</button>
           }
         </div>
       </div>
