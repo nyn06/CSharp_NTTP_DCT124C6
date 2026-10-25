@@ -1,0 +1,85 @@
+﻿@model CatalogViewModel
+@{ ViewData["Title"] = "Metropolitan Coffee - Menu"; }
+<main>
+<div class="container py-5">
+  <div class="row align-items-center mb-4">
+    <div class="col-md-4">
+      <p class="section-title mb-1">Menu</p>
+      <h2 class="mb-0">Our Collection</h2>
+    </div>
+    <div class="col-md-8">
+      <form method="get" action="@Url.Action("Menu", "Home")" id="catalogSearch"
+            style="background:#f0e8dc;padding:20px 24px;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,0.08);">
+        <div class="d-flex gap-2 align-items-start">
+          <div style="position:relative; width:220px;">
+            <input class="form-control" placeholder="Search by name" id="searchInput" name="name"
+                   value="@Model.SearchName" autocomplete="off" spellcheck="false">
+            <div id="suggestions" class="suggestion-box"></div>
+          </div>
+          <select id="category" name="categoryId" class="form-select" style="max-width:170px">
+            <option value="">All Category</option>
+            @foreach (var category in Model.Categories)
+            {
+              <option value="@category.Id" selected="@(Model.SelectedCategoryId == category.Id)">@category.Name</option>
+            }
+          </select>
+          <div style="display:flex; flex-direction:column;">
+            <div class="d-flex gap-2">
+              <input type="number" class="form-control" id="minPrice" name="minPrice" placeholder="Min $"
+                     min="0" step="0.01" value="@Model.MinPrice?.ToString(System.Globalization.CultureInfo.InvariantCulture)" style="max-width:120px">
+              <input type="number" class="form-control" id="maxPrice" name="maxPrice" placeholder="Max $"
+                     min="0" step="0.01" value="@Model.MaxPrice?.ToString(System.Globalization.CultureInfo.InvariantCulture)" style="max-width:120px">
+            </div>
+            <small id="priceError" style="color:red; display:none; margin-top:4px;">
+              Min price must not be higher than Max price
+            </small>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" id="searchBtn" class="btn btn-dark">Search</button>
+            <a href="@Url.Action("Menu", "Home")" id="clearFilters" class="btn btn-dark" style="display:@(Model.HasFilters ? "inline-block" : "none");">Reset</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  @if (Model.HasFilters)
+  {
+    <section id="searchResults" class="menu-section mb-5">
+      <h3 class="menu-heading mb-4">Search Results (@Model.SearchResults.Count found)</h3>
+      <div class="row g-4" id="searchGrid">
+        @foreach (var product in Model.SearchResults) { @await Html.PartialAsync("_ProductCard", product) }
+        @if (Model.SearchResults.Count == 0) { <p class="text-muted">No products found.</p> }
+      </div>
+      <div id="searchPagination" class="pagination-btns d-flex justify-content-center mt-4 gap-2"></div>
+    </section>
+  }
+  else
+  {
+    <div id="menuSections">
+      @foreach (var category in Model.Categories.Where(c => Model.Products.Any(p => p.CategoryId == c.Id)))
+      {
+        <section class="menu-section mb-5" data-category="@category.Id">
+          <h3 class="menu-heading mb-4">@category.Name</h3>
+          <div class="row g-4" data-grid="@category.Id">
+            @foreach (var product in Model.Products.Where(p => p.CategoryId == category.Id))
+            {
+              @await Html.PartialAsync("_ProductCard", product)
+            }
+          </div>
+          <div class="pagination-btns d-flex justify-content-center mt-3 gap-2" data-pagination="@category.Id"></div>
+        </section>
+      }
+      @if (Model.Products.Count == 0) { <p class="text-muted">No products available right now.</p> }
+    </div>
+  }
+</div>
+</main>
+<button id="backToTop" aria-label="Back to top"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 19V5M12 5L6 11M12 5L18 11" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button>
+<style>
+#backToTop { position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; border-radius: 50%; background: #827d79; border: none; display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 9999; transition: 0.3s; }
+#backToTop:hover { background: #6f6f6f; transform: translateY(-3px); }
+html, body { height: 100%; margin: 0; } body { display: flex; flex-direction: column; min-height: 100vh; } .container.py-5 { flex: 1; } footer { background: #7f7974; color: white; width: 100%; }
+#category { appearance: auto !important; -webkit-appearance: auto !important; -moz-appearance: auto !important; height: 38px !important; padding-top: 0 !important; padding-bottom: 0 !important; }
+</style>
+@section Scripts { <script src="~/assets/js/catalog-shell.js"></script> }

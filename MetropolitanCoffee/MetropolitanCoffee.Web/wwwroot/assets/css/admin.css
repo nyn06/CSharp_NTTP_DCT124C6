@@ -1,0 +1,30 @@
+.tab-pane { display:none; }
+.tab-pane.show { display:block; }
+.nav-pills .nav-link { cursor:pointer; }
+.table td, .table th { vertical-align: middle; }
+.badge-status { font-size: .75rem; }
+body .hero { background: #827d79; color:#fff8f2; }
+.navbar .nav-item#adminName { margin-left: 12px; color: #fff; }
+.navbar .nav-link.active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+.navbar .nav-link:hover {
+  opacity: 0.8;
+}
+/* ===== ADMIN DROPDOWN ===== */
+.navbar .dropdown-menu {
+  min-width: 200px;
+  border-radius: 0.6rem;
+  animation: fadeIn 0.2s ease-in-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.navbar .dropdown-header {
+  background-color: #f8f9fa;
+}
+.navbar .dropdown-item:hover {
+  background-color: #f1f1f1;
+}

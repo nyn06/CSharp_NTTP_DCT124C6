@@ -1,0 +1,733 @@
+/* ===== Root colors & fonts ===== */
+:root {
+  --bg: #fff8f2;
+  --card: #ffffff;
+  --muted: #827d79;
+  --text: #4b4743;
+  --ink: #222;
+  --accent: #827d79;
+  --shadow: rgba(0,0,0,0.08);
+  --transition: all 0.25s ease;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Jost", "Open Sans", sans-serif;
+  scroll-behavior: smooth;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: var(--transition);
+}
+a:hover { opacity: 0.85; }
+
+/* ===== Navbar ===== */
+.navbar {
+  background: linear-gradient(90deg, #827d79, #827d79);
+  border-bottom: 1px solid #827d79;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.navbar-brand {
+  letter-spacing: .15em;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.navbar-nav .nav-link {
+  font-weight: 500;
+  color: white !important;
+  letter-spacing: .06em;
+}
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
+  color: #f5f5f5 !important;
+  border-bottom: 2px solid #fff;
+  padding-bottom: 2px;
+} 
+
+/* ===== Hero section ===== */
+.hero {
+  min-height: 70vh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  background: radial-gradient(70% 50% at 50% 50%, #fff8f2 0%, #fff9f5 100%);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.hero h1 {
+  font-size: clamp(2.2rem, 4vw, 3rem);
+  font-weight: 900;
+  letter-spacing: .05em;
+  color: var(--accent);
+}
+.hero h2 {
+  font-size: clamp(1rem, 2.5vw, 2rem);
+  font-weight: 700;
+  letter-spacing: .05em;
+  color: var(--accent);
+}
+.hero .lead {
+  color: #6f6a65;
+  font-size: 1.05rem;
+}
+.hero .btn {
+  border-radius: 120px;
+  font-weight: 600;
+  padding: 0.6rem 1.6rem;
+  transition: var(--transition);
+}
+.btn-light {
+  background-color: var(--accent) !important;
+  color: white !important;
+  border: none;
+}
+.btn-light:hover {
+  background-color: #6f6863 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px var(--shadow);
+}
+.btn-outline-light {
+  color: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+.btn-outline-light:hover {
+  background-color: var(--accent) !important;
+  color: #fff !important;
+}
+
+/* ===== Cards ===== */
+.card {
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+.card-body {
+  padding: 16px 20px;
+}
+.card-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #4a403a;
+}
+.card-text {
+  color: #7a746e;
+  font-size: 14px;
+}
+
+
+.card img {
+  width: 100%;
+  height: 260px; /* đồng nhất chiều cao khung hình */
+  object-fit: contain; /* hiển thị toàn bộ ảnh, không bị cắt */
+  border-radius: 8px 8px 0px 0px;
+  background-color: #f9f9f9; /* tạo nền sáng cho ảnh nhỏ hơn khung */
+  padding: 10px; /* tránh ảnh dính sát viền khi có khoảng trống */
+  transition: var(--transition);
+}
+
+/* Responsive ảnh cho màn hình nhỏ */
+@media (max-width: 768px) {
+  .card img {
+    height: 200px;
+  }
+}
+@media (max-width: 480px) {
+  .card img {
+    height: 160px;
+    padding: 8px;
+  }
+}
+
+.badge-cat {
+  background: var(--accent);
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.3em 0.6em;
+  border-radius: 1.2em;
+  letter-spacing: .05em;
+}
+
+/* ===== Footer ===== */
+footer {
+  background: linear-gradient(90deg, #827d79, #827d79);
+  color: white;
+  border-top: 2px solid #827d79;
+  width: 100%;
+}
+footer strong {
+  color: #fff !important;
+  letter-spacing: .05em;
+}
+footer a {
+  color: #fff;
+  font-weight: 500;
+  transition: var(--transition);
+}
+footer a:hover {
+  color: #e0e0e0;
+}
+.footer-quote {
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 10;
+}
+/* Footer contacts */
+.footer-hotline { color: #fff; font-weight: 700; }
+.footer-hotline:hover { opacity: .9; }
+
+.social-icon { display: inline-flex; line-height: 1; color: #ffffff; opacity: 0.95; }
+.social-icon:hover { opacity: 1; transform: translateY(-2px); transition: 0.2s; }
+
+/* (Bảo hiểm) nếu còn sót link cũ, ẩn nó đi */
+footer a[href="menu.html"],
+footer a[href="account.html"],
+footer a[href="admin/index.html"] { display: none !important; }
+
+/* ===== Utility ===== */
+.section-title {
+  font-size: 0.9rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+hr { border-color: #e5e5e5; }
+.small-muted { color: var(--muted); font-size: .9rem; }
+
+/* Inputs & Tables */
+input, select, textarea,
+.form-control, .form-select {
+  background: #fff !important;
+  color: #000 !important;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #333;
+  box-shadow: 0 0 12px rgba(0,0,0,0.1);
+}
+
+.table {
+  color: #827d79;
+}
+.table thead {
+  color: #827d79;
+  font-weight: 600;
+}
+
+/* Thanh danh mục cuộn ngang */
+.category-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.category-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.cat-link {
+  flex: 0 0 auto;
+  background-color: #ffffff;
+  padding: 8px 18px;
+  border-radius: 50px;
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.2s;
+  white-space: nowrap;
+}
+
+.cat-link.active,
+.cat-link:hover {
+  background-color: #827d79;
+  color: #fff;
+}
+
+/* Tiêu đề từng nhóm món */
+.menu-heading {
+  font-weight: 700;
+  font-size: 1.5rem;
+  border-left: 5px solid #827d79;
+  padding-left: 10px;
+  color: #827d79;
+}
+
+/* Pagination buttons */
+#menu .btn-outline-light {
+  border-color: #827d79;
+  color: #827d79;
+}
+#menu .btn-outline-light:hover {
+  background-color: #827d79;
+  color: #fff;
+}
+
+/* ===== Pagination custom ===== */
+.pagination-btns button {
+  border-radius: 6px;
+  padding: 5px 10px;
+  transition: 0.2s;
+}
+
+.pagination-btns .btn-outline-dark {
+  border-color: #827d79;
+  color: #827d79;
+  background-color: #fff;
+}
+
+.pagination-btns .btn-outline-dark:hover {
+  background-color: #827d79;
+  color: #fff;
+}
+
+.pagination-btns .btn-dark {
+  background-color: #827d79;
+  border-color: #827d79;
+  color: #fff;
+}
+
+/* ===== BACK TO TOP ICON ===== */
+#backToTop {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1000;
+  display: none;
+  border: none;
+  background-color: #000; /* nền đen */
+  transition: opacity 0.3s;
+}
+
+#backToTop .arrow-icon {
+  width: 24px;
+  height: 24px;
+  filter: invert(1); /* Đổi icon đen thành trắng */
+}
+
+#backToTop:hover .arrow-icon {
+  filter: invert(1) brightness(1.5); /* sáng hơn khi hover */
+}
+
+.text-purple {
+  color: #7a3cf0;
+}
+.editing-field {
+  border: 2px solid #198754 !important;
+  background-color: #fdfdfd !important;
+  box-shadow: 0 0 6px rgba(25, 135, 84, 0.3);
+  transition: all 0.3s ease;
+}
+.btn-buy-now {
+  background-color: #d10000; /* đỏ đậm */
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  transition: 0.25s ease;
+  text-transform: uppercase;
+}
+
+.btn-buy-now:hover {
+  background-color: #b00000;
+  transform: scale(1.05);
+}
+a.text-danger:hover {
+  text-decoration: underline;
+}
+
+a.text-dark:hover {
+  color: #000;
+  text-decoration: underline;
+}
+
+#qty {
+    /* Quan trọng: có thể cần ghi đè border và background của Bootstrap */
+    border: 1px solid #c7c3c0 !important; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    /* Thêm hiệu ứng chuyển động mượt mà */
+    transition: box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
+}
+
+/* Hiệu ứng khi khung được focus (nhấp vào) */
+#qty:focus {
+    box-shadow: 0 0 0 0.25rem rgba(130, 125, 121, 0.25); /* Dùng màu accent làm màu focus */
+    border-color: #827d79 !important; /* Đổi màu viền khi focus */
+}
+
+/* ===== Cart Table ===== */
+#cartTable, 
+.table.table-dark {
+  border-radius: 12px;
+  overflow: hidden;
+  --bs-table-bg: #827d79;
+  --bs-table-border-color: #a8a39f;
+  color: white;
+}
+
+#cartTable thead {
+    --bs-table-head-bg: #6e6965;
+    color: white;
+}
+
+#cartTable .btn-danger {
+    background-color: transparent !important; /* Đặt nền trong suốt */
+    border-color: transparent !important;   /* Đặt viền trong suốt */
+    color: white !important;          /* Đặt màu chữ (dấu X) là trắng */
+    font-size: 1.5rem;                 
+    padding: 0;                        
+    width: 24px;                           
+    height: 24px;                 
+    display: flex;                      
+    justify-content: center;  
+    align-items: center;                    
+}
+
+/* Đảm bảo khi di chuột qua, dấu X vẫn màu trắng */
+#cartTable .btn-danger:hover {
+    background-color: rgba(255, 255, 255, 0.2) !important; /* Tùy chọn: Màu nền mờ khi hover */
+    color: white !important;
+}
+
+button.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Bóng cho toàn khối */
+.shadow-box {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* View button */
+.btn-view {
+  color: #827d79;
+  border-color: #827d79;
+}
+
+.btn-view:hover {
+  background-color: #6e6863;
+  color: white;
+  border-color: #6e6863;
+}
+
+/* Add button */
+.btn-add {
+  background-color: #827d79;
+  color: white;
+  border: none;
+}
+
+/* nút cancel */
+.btn-cancel {
+  border: 1px solid #888888;
+  color: #888888;
+  background-color: transparent;
+  transition: all 0.3s ease;
+}
+.btn-cancel:hover {
+  background-color: #999999;
+  color: #ffffff;
+  border-color: #999999;
+}
+
+/* nút reset */
+.btn-reset {
+  border: 1px solid #666666;
+  color: #666666;
+  background-color: transparent;
+  transition: all 0.3s ease;
+}
+.btn-reset:hover {
+  background-color: #777777;
+  color: #ffffff;
+  border-color: #777777;
+}
+
+/* nút save */
+.btn-save {
+  border: 1px solid #00c49f;
+  color: #00c49f;
+  background-color: transparent;
+  transition: all 0.3s ease;
+}
+.btn-save:hover {
+  background-color: #00c49f;
+  color: #ffffff;
+  border-color: #00c49f;
+}
+
+/* ==== Nút Save Changes riêng cho Profile ==== */
+.btn-save-profile {
+  background-color: #827d79;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 18px;
+  transition: all 0.3s ease;
+}
+
+.btn-save-profile:hover:not(:disabled) {
+  background-color: #6f6863;
+  color: #fff;
+}
+
+/* Khi bị disabled */
+.btn-save-profile:disabled {
+  background-color: #827d79;
+  color: #fff;
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+/* Khi đang chỉnh sửa profile */
+.editing-mode .btn-save-profile {
+  background-color: #5e5550; /* đậm hẳn để dễ nhận biết */
+  box-shadow: 0 0 6px rgba(0,0,0,0.25);
+}
+
+/* nút edit */
+.btn-edit {
+  border: 1px solid #007aff;
+  color: #007aff;
+  background-color: transparent;
+  transition: all 0.3s ease;
+}
+.btn-edit:hover {
+  background-color: #007aff;
+  color: #ffffff;
+  border-color: #007aff;
+}
+
+/* nút block */
+.btn-block {
+  border: 1px solid #ff7046;
+  color: #ff7046;
+  background-color: transparent;
+  transition: all 0.3s ease;
+}
+.btn-block:hover {
+  background-color: #ff7046;
+  color: #ffffff;
+  border-color: #ff7046;
+}
+
+/* nút delete */
+.btn-delete {
+  border: 1px solid #d32f2f;
+  color: #d32f2f;
+  background-color: transparent;
+  transition: all 0.3s ease;
+}
+.btn-delete:hover {
+  background-color: #d32f2f;
+  color: #ffffff;
+  border-color: #d32f2f;
+}
+
+.btn-dark {
+  background-color: #827d79;
+  color: white;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-addToCart {
+  background-color: #827d79;
+  color: white;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-dark:hover,
+.btn-addToCart:hover,
+.btn-add:hover {
+  background-color: #6e6863;
+  color: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+
+/* === CUSTOMER DROPDOWN STYLE === */
+.navbar .dropdown-menu {
+  background-color: #fff !important;
+  border-radius: 0.6rem !important;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  overflow: hidden;
+  min-width: 200px;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.navbar .dropdown-header {
+  background-color: #f8f9fa !important;
+  padding: 1rem 0.5rem !important;
+  text-align: center !important;
+}
+
+.navbar .dropdown-header img {
+  display: block;
+  margin: 0 auto 0.4rem;
+}
+
+.navbar .dropdown-header .fw-bold {
+  color: #4b4033 !important;
+  font-weight: 600;
+}
+
+.navbar .dropdown-item {
+  background-color: #fff !important;
+  color: #333 !important;
+  text-align: left;
+  font-weight: 500;
+}
+
+.navbar .dropdown-item:hover {
+  background-color: #f1f1f1 !important;
+}
+
+.navbar .dropdown-item.text-danger {
+  color: #dc3545 !important;
+}
+
+.navbar .dropdown-divider {
+  margin: 0;
+  opacity: 0.3;
+}
+.navbar .nav-link img {
+  object-fit: cover;
+  transition: 0.3s;
+}
+.navbar .nav-link img:hover {
+  box-shadow: 0 0 8px rgba(255,255,255,0.7);
+}
+
+.table-responsive {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 9px;
+  overflow: hidden;
+}
+#liveToast.text-bg-warning {
+  background-color: #827d79 !important; /* Nâu nhạt */
+  color: #fff !important;
+}
+#adminToast.success { background-color: #827d79 !important; } /* Xanh lá */
+#adminToast.warning { background-color: #827d79 !important; } /* Nâu cà phê */
+#adminToast.error { background-color: #827d79 !important; }   /* Đỏ */
+#adminToast.info { background-color: #827d79 !important; }    /* Xanh lam */
+
+.toast {
+  animation: slideDown 1s ease;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+#optQty {
+  font-weight: 600;
+  text-align: center;
+  border-left: none;
+  border-right: none;
+}
+#qtyMinus, #qtyPlus {
+  width: 40px;
+}
+.filter-btn {
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #4a403a;
+  border-radius: 20px;
+  padding: 6px 16px;
+  margin-right: 8px;
+  transition: all 0.3s ease;
+}
+.filter-btn.active, .filter-btn:hover {
+  background: #4a403a;
+  color: #fff;
+}
+
+#shippingFields .form-control{
+  padding: 12px 14px;
+  border-radius: 10px;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+}
+
+footer {
+  background: #7f7974;
+  color: white;
+}
+.suggestion-box {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 9999;
+  display: none;
+}
+
+.suggestion-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.suggestion-item:hover {
+  background: #f0e8dc;
+}
+
+.navbar {
+  position: sticky;
+  z-index: 1030;
+}
+
+/* Modal phải luôn nằm trên navbar */
+.modal {
+  z-index: 1055 !important;
+}
+.modal-backdrop {
+  z-index: 1050 !important;
+}

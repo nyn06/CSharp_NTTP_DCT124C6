@@ -1,0 +1,51 @@
+<!-- ===== MODAL CHỌN TÙY CHỌN ===== -->
+<div class="modal fade" id="optionModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+  <h5 class="modal-title w-100 text-center">Customize Your Choice</h5>
+</div>
+
+      <div class="modal-body shadow-box">
+        <div class="mb-3" id="sizeField">
+          <label class="form-label fw-semibold">Cup Size</label>
+          <select id="optSize" class="form-select">
+            <option value="S">Small</option>
+            <option value="M" selected>Medium</option>
+            <option value="L">Large</option>
+          </select>
+        </div>
+
+        <div class="mb-3" id="iceField">
+          <label class="form-label fw-semibold">Ice Level</label>
+          <select id="optIce" class="form-select">
+            <option value="less">Less Ice</option>
+            <option value="normal" selected>Normal Ice</option>
+            <option value="more">More Ice</option>
+          </select>
+        </div>
+
+        <div class="mb-3" id="sugarField">
+          <label class="form-label fw-semibold">Sugar Level</label>
+          <select id="optSugar" class="form-select">
+            <option value="less">Less Sugar</option>
+            <option value="normal" selected>Normal Sugar</option>
+            <option value="more">More Sugar</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Quantity</label>
+          <div class="input-group justify-content-center" style="max-width:160px; margin:auto;">
+            <input type="number" id="optQty" class="form-control text-center" value="1" min="1">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-cancel" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-addToCart" id="confirmAdd">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+

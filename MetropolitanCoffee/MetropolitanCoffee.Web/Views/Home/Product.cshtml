@@ -1,0 +1,85 @@
+﻿@model MetropolitanCoffee.Core.Models.Product
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnvironment
+@{
+    ViewData["Title"] = "Product Detail | Metropolitan Coffee";
+    var imageUrl = Url.Content(ProductImageResolver.Resolve(Model, HostEnvironment.WebRootPath));
+}
+<div class="container py-5" id="productDetail">
+  <a href="@Url.Action("Menu", "Home")" id="backToMenu" class="small-muted d-inline-block mb-3">&larr; Back to Menu</a>
+  <div class="row g-4 mt-2">
+    <div class="col-md-6">
+      <img id="pImg" src="@imageUrl" class="w-100 rounded shadow-sm" alt="@Model.Name"
+           onerror="this.onerror=null;this.src='@Url.Content("~/assets/img/MetropolitanCafeLogo.png")';">
+    </div>
+    <div class="col-md-6">
+      <span class="badge text-bg-secondary mb-2" id="pCat">@Model.CategoryName.ToUpperInvariant()</span>
+      <h2 id="pName">@Model.Name</h2>
+      <p class="lead fw-semibold" id="pPrice">$@Model.SellPrice.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)</p>
+      <p id="pDesc" class="small-muted">@Model.Description<br><br><strong>Ingredients:</strong> @Model.Ingredients</p>
+
+      <div class="mt-3">
+        @if (Model.HasSize)
+        {
+          <div class="mb-3" id="sizeField">
+            <label class="form-label fw-semibold" for="optSize">Cup Size</label>
+            <select id="optSize" class="form-select">
+              <option value="S">Small</option>
+              <option value="M" selected>Medium</option>
+              <option value="L">Large</option>
+            </select>
+          </div>
+        }
+        @if (Model.HasIce)
+        {
+          <div class="mb-3" id="iceField">
+            <label class="form-label fw-semibold" for="optIce">Ice Level</label>
+            <select id="optIce" class="form-select">
+              <option value="less">Less Ice</option>
+              <option value="normal" selected>Normal Ice</option>
+              <option value="more">More Ice</option>
+            </select>
+          </div>
+        }
+        @if (Model.HasSugar)
+        {
+          <div class="mb-3" id="sugarField">
+            <label class="form-label fw-semibold" for="optSugar">Sugar Level</label>
+            <select id="optSugar" class="form-select">
+              <option value="less">Less Sugar</option>
+              <option value="normal" selected>Normal Sugar</option>
+              <option value="more">More Sugar</option>
+            </select>
+          </div>
+        }
+      </div>
+
+      <div class="mt-3">
+        <label class="form-label fw-semibold" for="qty">Quantity</label>
+        <div class="d-flex gap-2">
+          <input type="number" min="1" step="1" value="1" id="qty" class="form-control"
+                 style="max-width:120px" disabled="@Model.IsSoldOut">
+          @if (Model.IsSoldOut)
+          {
+            <button type="button" class="btn btn-secondary" disabled>Sold Out</button>
+          }
+          else
+          {
+            <button type="button" class="btn btn-light" id="addBtn" disabled title="Cart chưa triển khai">Add to cart</button>
+            <button type="button" class="btn btn-buy-now" id="buyNowBtn" disabled title="Checkout chưa triển khai">BUY NOW</button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+@section Scripts {
+  <script>
+    document.getElementById('backToMenu')?.addEventListener('click', function (event) {
+      if (document.referrer && new URL(document.referrer).origin === location.origin &&
+          new URL(document.referrer).pathname.toLowerCase() === '@Url.Action("Menu", "Home")'.toLowerCase()) {
+        event.preventDefault();
+        history.back();
+      }
+    });
+  </script>
+}
