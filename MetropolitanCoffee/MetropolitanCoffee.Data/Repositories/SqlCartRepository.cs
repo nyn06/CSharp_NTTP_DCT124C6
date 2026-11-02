@@ -26,6 +26,46 @@ public sealed class SqlCartRepository(string connectionString) : ICartRepository
         return new CartSnapshot { Items = lines };
     }
 
+    public async Task<CartPriceSyncResult> SynchronizePricesAsync(int userId, CancellationToken ct = default)
+    {
+        await using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync(ct);
+        await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
+        try
+        {
+            if (!await LockUserAsync(connection, transaction, userId, ct))
+                return new(new CartSnapshot(), 0);
+
+            var changed = 0;
+            await using (var update = NewCommand(connection, transaction, """
+                UPDATE c SET UnitPrice=p.SellPrice
+                FROM dbo.CartItems AS c WITH (UPDLOCK, HOLDLOCK)
+                INNER JOIN dbo.Products AS p WITH (UPDLOCK, HOLDLOCK) ON p.Id=c.ProductId
+                WHERE c.UserId=@UserId AND c.UnitPrice<>p.SellPrice
+                """))
+            {
+                update.Parameters.Add("@UserId", SqlDbType.Int).Value = userId;
+                changed = await update.ExecuteNonQueryAsync(ct);
+            }
+
+            var lines = new List<CartLine>();
+            await using (var read = NewCommand(connection, transaction,
+                LineSelect + " WHERE c.UserId=@UserId ORDER BY c.AddedAt, c.Id"))
+            {
+                read.Parameters.Add("@UserId", SqlDbType.Int).Value = userId;
+                await using var reader = await read.ExecuteReaderAsync(ct);
+                while (await reader.ReadAsync(ct)) lines.Add(ReadLine(reader));
+            }
+            await transaction.CommitAsync(ct);
+            return new(new CartSnapshot { Items = lines }, changed);
+        }
+        catch
+        {
+            await transaction.RollbackAsync(CancellationToken.None);
+            throw;
+        }
+    }
+
     public async Task<CartOperation> AddAsync(int userId, int productId, int quantity, string? size, string? ice, string? sugar, CancellationToken ct = default)
     {
         await using var connection = new SqlConnection(connectionString);

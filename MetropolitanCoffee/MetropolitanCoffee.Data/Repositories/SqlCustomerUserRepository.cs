@@ -13,6 +13,72 @@ public sealed class SqlCustomerUserRepository(string connectionString) : ICustom
     public Task<CustomerUser?> FindByIdAsync(int id, CancellationToken ct = default)
         => FindAsync("Id = @Value", id, SqlDbType.Int, 0, ct);
 
+    public async Task<CustomerProfile?> GetProfileAsync(int id, CancellationToken ct = default)
+    {
+        await using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync(ct);
+        await using var command = new SqlCommand("""
+            SELECT Id, Username, FirstName, LastName, Email, Phone, City, Ward, Address, Status, Avatar
+            FROM dbo.Users WHERE Id=@Id AND Role=N'user' AND Status=N'active'
+            """, connection);
+        command.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+        await using var reader = await command.ExecuteReaderAsync(ct);
+        return await reader.ReadAsync(ct) ? new CustomerProfile(
+            reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3),
+            reader.GetString(4), ReadString(reader, 5), ReadString(reader, 6), ReadString(reader, 7),
+            ReadString(reader, 8), reader.GetString(9), reader.IsDBNull(10) ? null : reader.GetString(10)) : null;
+    }
+
+    public async Task<bool> UpdateAvatarAsync(int id, string avatarPath, CancellationToken ct = default)
+    {
+        await using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync(ct);
+        await using var command = new SqlCommand("""
+            UPDATE dbo.Users SET Avatar=@Avatar
+            WHERE Id=@Id AND Role=N'user' AND Status=N'active'
+            """, connection);
+        command.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+        command.Parameters.Add("@Avatar", SqlDbType.NVarChar, 255).Value = avatarPath;
+        return await command.ExecuteNonQueryAsync(ct) == 1;
+    }
+
+    public async Task<bool> UpdateProfileAsync(int id, CustomerProfileUpdate profile, CancellationToken ct = default)
+    {
+        await using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync(ct);
+        await using var command = new SqlCommand("""
+            UPDATE dbo.Users SET FirstName=@FirstName, LastName=@LastName, Phone=@Phone,
+                Ward=@Ward, Address=@Address
+            WHERE Id=@Id AND Role=N'user' AND Status=N'active'
+            """, connection);
+        command.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+        command.Parameters.Add("@FirstName", SqlDbType.NVarChar, 50).Value = profile.FirstName;
+        command.Parameters.Add("@LastName", SqlDbType.NVarChar, 50).Value = profile.LastName;
+        command.Parameters.Add("@Phone", SqlDbType.NVarChar, 20).Value = profile.Phone;
+        command.Parameters.Add("@Ward", SqlDbType.NVarChar, 100).Value = profile.Ward;
+        command.Parameters.Add("@Address", SqlDbType.NVarChar, 255).Value = profile.Address;
+        return await command.ExecuteNonQueryAsync(ct) == 1;
+    }
+
+    public async Task<long?> ChangePasswordAsync(int id, string previousHash, long authVersion, string newHash, CancellationToken ct = default)
+    {
+        await using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync(ct);
+        await using var command = new SqlCommand("""
+            UPDATE dbo.Users SET PasswordHash=@NewHash, AuthVersion=AuthVersion+1
+            OUTPUT INSERTED.AuthVersion
+            WHERE Id=@Id AND PasswordHash=@PreviousHash AND AuthVersion=@AuthVersion
+              AND AuthVersion<4294967295 AND Role=N'user' AND Status=N'active'
+            """, connection);
+        command.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+        command.Parameters.Add("@PreviousHash", SqlDbType.NVarChar, 255).Value = previousHash;
+        command.Parameters.Add("@AuthVersion", SqlDbType.BigInt).Value = authVersion;
+        command.Parameters.Add("@NewHash", SqlDbType.NVarChar, 255).Value = newHash;
+        return await command.ExecuteScalarAsync(ct) is long version ? version : null;
+    }
+
+    private static string ReadString(SqlDataReader reader, int index) => reader.IsDBNull(index) ? "" : reader.GetString(index);
+
     private async Task<CustomerUser?> FindAsync(string predicate, object value, SqlDbType type, int size, CancellationToken ct)
     {
         await using var connection = new SqlConnection(connectionString);

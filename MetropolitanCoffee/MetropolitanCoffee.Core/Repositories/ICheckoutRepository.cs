@@ -9,4 +9,6 @@ public interface ICheckoutRepository
     Task<CheckoutResult> PlaceAsync(int userId, BuyNowSelection? buyNow, Guid requestId, decimal quotedTotal, ShippingInfo shipping, string payment, CancellationToken ct = default);
     Task<IReadOnlyList<CustomerOrder>> GetOrdersAsync(int userId, CancellationToken ct = default);
     Task<CustomerOrder?> GetOrderAsync(int userId, int orderId, CancellationToken ct = default);
+    Task<bool> CancelOrderAsync(int userId, int orderId, CancellationToken ct = default);
+    Task<bool> UpdateDeliveryAddressAsync(int userId, int orderId, string address, string ward, CancellationToken ct = default);
 }

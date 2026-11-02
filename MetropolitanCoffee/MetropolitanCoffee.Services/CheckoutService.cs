@@ -10,6 +10,28 @@ public sealed class CheckoutService(ICheckoutRepository orders, IProductReposito
     public Task<CheckoutPreview> PrepareAsync(int userId, BuyNowSelection? buyNow, CancellationToken ct = default) => orders.PrepareAsync(userId, buyNow, ct);
     public Task<IReadOnlyList<CustomerOrder>> GetOrdersAsync(int userId, CancellationToken ct = default) => orders.GetOrdersAsync(userId, ct);
     public Task<CustomerOrder?> GetOrderAsync(int userId, int orderId, CancellationToken ct = default) => orders.GetOrderAsync(userId, orderId, ct);
+    public Task<bool> CancelOrderAsync(int userId, int orderId, CancellationToken ct = default) =>
+        userId <= 0 || orderId <= 0 ? Task.FromResult(false) : orders.CancelOrderAsync(userId, orderId, ct);
+
+    public Task<(bool Success, string Message)> UpdateDeliveryAddressAsync(int userId, int orderId, string? address, string? ward, CancellationToken ct = default)
+    {
+        address = address?.Trim();
+        ward = ward?.Trim();
+        if (string.IsNullOrWhiteSpace(address) || string.IsNullOrWhiteSpace(ward))
+            return Task.FromResult((false, "Please fill required fields."));
+        if (address.Length > 255 || !Regex.IsMatch(address, @"^[\p{L}0-9\s/\-]+$"))
+            return Task.FromResult((false, "Please enter a valid address."));
+        if (ward.Length > 100 || !Regex.IsMatch(ward, @"^[A-Za-z\s]+$"))
+            return Task.FromResult((false, "Please select a valid ward."));
+        return UpdateAddressCoreAsync(userId, orderId, address, ward, ct);
+    }
+
+    private async Task<(bool Success, string Message)> UpdateAddressCoreAsync(int userId, int orderId, string address, string ward, CancellationToken ct)
+    {
+        if (userId <= 0 || orderId <= 0) return (false, "This order's delivery address can no longer be edited.");
+        var updated = await orders.UpdateDeliveryAddressAsync(userId, orderId, address, ward, ct);
+        return updated ? (true, "Delivery address updated successfully.") : (false, "This order's delivery address can no longer be edited.");
+    }
 
     public async Task<(BuyNowSelection? Selection, string? Error)> PrepareBuyNowAsync(int userId, int productId, int quantity, string? size, string? ice, string? sugar, CancellationToken ct = default)
     {
@@ -19,7 +41,7 @@ public sealed class CheckoutService(ICheckoutRepository orders, IProductReposito
         if (product.Quantity <= 0) return (null, "This product is out of stock.");
         if (quantity > product.Quantity) return (null, $"Only {product.Quantity} item(s) are available right now.");
         var options = CartOptions.ForAdd(size, ice, sugar, product.HasSize, product.HasIce, product.HasSugar);
-        return (new BuyNowSelection(userId, productId, quantity, options.Size, options.Ice, options.Sugar), null);
+        return (new BuyNowSelection(userId, productId, quantity, options.Size, options.Ice, options.Sugar, product.SellPrice), null);
     }
 
     public Task<CheckoutResult> PlaceAsync(int userId, BuyNowSelection? buyNow, Guid requestId, decimal quotedTotal, ShippingInfo shipping, string payment, CancellationToken ct = default)
