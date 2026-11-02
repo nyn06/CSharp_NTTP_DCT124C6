@@ -216,6 +216,7 @@ internal sealed class B04InventoryPage : UserControl
         _set.Click += async (_, _) => await RefreshSummaryAndAlertsAsync();
         thresholdControls.Controls.Add(_set);
         _sections.Controls.Add(alerts);
+        InventoryAuditSections.Attach(_sections);
 
         foreach (var grid in new[] { _snapshotGrid, _reportGrid, _alertGrid }) HookImagePainting(grid);
         SizeSections();
