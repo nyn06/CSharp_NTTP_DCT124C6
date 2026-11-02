@@ -39,7 +39,8 @@
           <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
             @if (User.Identity?.IsAuthenticated == true)
             {
-              <li><span class="dropdown-item-text">Profile (coming later)</span></li>
+              <li><a class="dropdown-item" asp-controller="Account" asp-action="Index">My Account</a></li>
+              <li><a class="dropdown-item" asp-controller="Orders" asp-action="Index">Order History</a></li>
               <li><button class="dropdown-item text-danger" type="button" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</button></li>
             }
             else

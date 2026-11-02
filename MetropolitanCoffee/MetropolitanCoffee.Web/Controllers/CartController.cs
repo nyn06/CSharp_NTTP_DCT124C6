@@ -11,7 +11,12 @@ public sealed class CartController(CartService cart) : Controller
     private int CustomerId => int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : 0;
 
     [HttpGet]
-    public async Task<IActionResult> Index(CancellationToken ct) => View(await cart.GetAsync(CustomerId, ct));
+    public async Task<IActionResult> Index(CancellationToken ct)
+    {
+        var result = await cart.SynchronizePricesAsync(CustomerId, ct);
+        ViewData["PricesChanged"] = result.UpdatedLines > 0;
+        return View(result.Snapshot);
+    }
 
     [AllowAnonymous, HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Add(int productId, int quantity, string? size, string? ice, string? sugar, string? returnUrl, CancellationToken ct)

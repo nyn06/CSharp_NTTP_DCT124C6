@@ -6,6 +6,7 @@ namespace MetropolitanCoffee.Services;
 public sealed class CartService(ICartRepository repository)
 {
     public Task<CartSnapshot> GetAsync(int userId, CancellationToken ct = default) => repository.GetAsync(userId, ct);
+    public Task<CartPriceSyncResult> SynchronizePricesAsync(int userId, CancellationToken ct = default) => repository.SynchronizePricesAsync(userId, ct);
 
     public Task<CartOperation> AddAsync(int userId, int productId, int quantity, string? size, string? ice, string? sugar, CancellationToken ct = default)
     {

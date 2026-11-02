@@ -1,6 +1,6 @@
 namespace MetropolitanCoffee.Core.Models;
 
-public sealed record BuyNowSelection(int UserId, int ProductId, int Quantity, string Size, string Ice, string Sugar);
+public sealed record BuyNowSelection(int UserId, int ProductId, int Quantity, string Size, string Ice, string Sugar, decimal PriceAtSelection = 0);
 public sealed record CheckoutProfile(string FirstName, string LastName, string Phone, string Ward, string Address);
 public sealed record ShippingInfo(string FirstName, string LastName, string Address, string Ward, string Note);
 

@@ -2,14 +2,39 @@
 @{ ViewData["Title"] = "Order Detail | Metropolitan Coffee"; }
 <main class="container py-5"><a asp-action="Index" class="btn btn-sm btn-outline-dark mb-3">← Order History</a>
 @if (TempData["OrderNotice"] is string notice) { <div class="alert alert-success">@notice</div> }
+@if (TempData["OrderError"] is string error) { <div class="alert alert-danger" role="alert">@error</div> }
 <p class="section-title mb-1">Your Purchase</p><h2>Order #@Model.Id</h2>
 <div class="card p-4 mt-3"><p><strong>Date:</strong> @Model.CreatedAt.ToString("MM/dd/yyyy HH:mm")</p>
 <p><strong>Status:</strong> @Model.Status</p><p><strong>Payment:</strong> @Model.PaymentMethod</p>
 <p><strong>Recipient:</strong> @Model.ReceiverName</p><p><strong>Phone:</strong> @Model.ReceiverPhone</p>
 <p><strong>Address:</strong> @Model.ShipAddress, @Model.ShipWard, @Model.ShipCity</p>
+@if (Model.Status == "pending")
+{
+  <div class="d-flex flex-wrap gap-2 mb-3">
+    <a href="#edit-address" class="btn btn-sm btn-edit">Edit Address</a>
+    <form asp-action="Cancel" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Are you sure you want to cancel this order?')">
+      @Html.AntiForgeryToken()
+      <button type="submit" class="btn btn-sm btn-cancel">Cancel Order</button>
+    </form>
+  </div>
+  <form id="edit-address" asp-action="EditAddress" asp-route-id="@Model.Id" method="post" class="border rounded p-3 mb-3 order-address-form">
+    @Html.AntiForgeryToken()
+    <h5>Edit Shipping Address</h5>
+    <div class="row g-3">
+      <div class="col-12"><label for="address" class="form-label">Street Address *</label><input id="address" name="address" class="form-control" value="@Model.ShipAddress" maxlength="255" required></div>
+      <div class="col-md-6"><label for="ward" class="form-label">Ward *</label><input id="ward" name="ward" class="form-control" value="@Model.ShipWard" list="wardList" maxlength="100" required><datalist id="wardList"></datalist></div>
+      <div class="col-md-6"><label for="city" class="form-label">City</label><input id="city" class="form-control" value="@Model.ShipCity" readonly></div>
+    </div>
+    <button type="submit" class="btn btn-save mt-3">Save Changes</button>
+  </form>
+}
 @if (!string.IsNullOrWhiteSpace(Model.Note)) { <p><strong>Note:</strong> @Model.Note</p> }
 <hr><h5>Items</h5>
 @foreach (var line in Model.Items)
 { <div class="d-flex justify-content-between border-bottom py-2"><span>@line.Name x@line.Quantity @if (line.Size != "none") { <small>Size: @line.Size</small> } @if (line.Ice != "none") { <small>Ice: @line.Ice</small> } @if (line.Sugar != "none") { <small>Sugar: @line.Sugar</small> }</span><strong>$@line.LineTotal.ToString("N2", System.Globalization.CultureInfo.InvariantCulture)</strong></div> }
 <div class="text-end mt-3"><strong>Total: $@Model.Total.ToString("N2", System.Globalization.CultureInfo.InvariantCulture)</strong></div>
 </div></main>
+<style>
+  .order-address-form { display: none; }
+  .order-address-form:target { display: block; }
+</style>

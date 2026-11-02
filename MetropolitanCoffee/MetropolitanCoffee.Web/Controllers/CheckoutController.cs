@@ -10,12 +10,13 @@ using MetropolitanCoffee.Web.Models;
 namespace MetropolitanCoffee.Web.Controllers;
 
 [Authorize(Roles = "user")]
-public sealed class CheckoutController(CheckoutService checkout, ILogger<CheckoutController> logger) : Controller
+public sealed class CheckoutController(CheckoutService checkout, CartService cart, ILogger<CheckoutController> logger) : Controller
 {
     private const string BuyNowKey = "Checkout.BuyNow";
     private const string TokenKey = "Checkout.RequestId";
     private const string ModeKey = "Checkout.Mode";
     private const string QuoteKey = "Checkout.QuotedTotal";
+    private const string QuoteVersionKey = "Checkout.QuoteVersion";
     private int CustomerId => int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : 0;
 
     [AllowAnonymous, HttpPost, ValidateAntiForgeryToken]
@@ -39,6 +40,7 @@ public sealed class CheckoutController(CheckoutService checkout, ILogger<Checkou
         var selection = buyNow ? ReadBuyNow() : null;
         if (buyNow && selection is null) return RedirectToAction("Menu", "Home")!;
         if (!buyNow) HttpContext.Session.Remove(BuyNowKey);
+        var cartSync = buyNow ? null : await cart.SynchronizePricesAsync(CustomerId, ct);
         var preview = await checkout.PrepareAsync(CustomerId, selection, ct);
         if (preview.Items.Count == 0) return RedirectToAction(buyNow ? "Menu" : "Index", buyNow ? "Home" : "Cart")!;
         var profile = await checkout.GetProfileAsync(CustomerId, ct);
@@ -46,7 +48,12 @@ public sealed class CheckoutController(CheckoutService checkout, ILogger<Checkou
         HttpContext.Session.SetString(TokenKey, token);
         HttpContext.Session.SetString(ModeKey, buyNow ? "buy" : "cart");
         HttpContext.Session.SetString(QuoteKey, preview.Subtotal.ToString(CultureInfo.InvariantCulture));
-        return View(new CheckoutPageViewModel { BuyNow = buyNow, Preview = preview, Profile = profile, RequestId = token });
+        var quoteVersion = Guid.NewGuid().ToString("N");
+        HttpContext.Session.SetString(QuoteVersionKey, quoteVersion);
+        ViewData["PricesChanged"] = buyNow
+            ? selection!.PriceAtSelection != 0 && preview.Items.Any(item => item.Price != selection.PriceAtSelection)
+            : cartSync!.UpdatedLines > 0 || cartSync.Snapshot.Items.Any(line => preview.Items.Any(item => item.ProductId == line.ProductId && item.Price != line.Price));
+        return View(new CheckoutPageViewModel { BuyNow = buyNow, Preview = preview, Profile = profile, RequestId = token, QuoteVersion = quoteVersion });
     }
 
     [HttpPost, ValidateAntiForgeryToken]
@@ -58,6 +65,11 @@ public sealed class CheckoutController(CheckoutService checkout, ILogger<Checkou
             !decimal.TryParse(HttpContext.Session.GetString(QuoteKey), NumberStyles.Number, CultureInfo.InvariantCulture, out var quotedTotal))
             return BadRequest("Invalid or expired checkout request.");
         var selection = model.BuyNow ? ReadBuyNow() : null;
+        if (HttpContext.Session.GetString(QuoteVersionKey) != model.QuoteVersion)
+        {
+            ModelState.AddModelError(string.Empty, "Checkout prices have changed. Please review the updated total and confirm again.");
+            return await RenderFailedAsync(model, selection, ct);
+        }
         // A repeated BUY NOW POST can still resolve to its existing order after the temporary cart was cleared.
         if (!ModelState.IsValid)
         {
@@ -87,8 +99,13 @@ public sealed class CheckoutController(CheckoutService checkout, ILogger<Checkou
 
     private async Task<IActionResult> RenderFailedAsync(CheckoutPageViewModel model, BuyNowSelection? selection, CancellationToken ct)
     {
+        if (!model.BuyNow) await cart.SynchronizePricesAsync(CustomerId, ct);
         model.Preview = await checkout.PrepareAsync(CustomerId, selection, ct);
+        ViewData["PricesChanged"] = HttpContext.Session.GetString(QuoteKey) != model.Preview.Subtotal.ToString(CultureInfo.InvariantCulture);
         HttpContext.Session.SetString(QuoteKey, model.Preview.Subtotal.ToString(CultureInfo.InvariantCulture));
+        model.QuoteVersion = Guid.NewGuid().ToString("N");
+        HttpContext.Session.SetString(QuoteVersionKey, model.QuoteVersion);
+        ModelState.Remove(nameof(CheckoutPageViewModel.QuoteVersion));
         model.Profile = await checkout.GetProfileAsync(CustomerId, ct);
         return View("Index", model);
     }
