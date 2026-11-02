@@ -159,6 +159,7 @@ public sealed class MainForm : Form
             : key == "products" ? new ProductsPage(Program.Catalog)
             : key == "categories" ? new CategoriesPage(Program.Catalog)
             : key == "pricing" ? new PricingPage(Program.Catalog)
+            : key == "stock" ? new InventoryPage(Program.ConnectionString)
             : new AdminPage(key, _reader);
         page.Dock = DockStyle.Fill;
         _pageHost.Controls.Add(page);
