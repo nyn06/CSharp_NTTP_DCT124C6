@@ -7,6 +7,7 @@ namespace MetropolitanCoffee.Admin;
 internal static class Program
 {
     internal static AdminCatalogService Catalog { get; private set; } = null!;
+    internal static B04InventoryService Inventory { get; private set; } = null!;
     internal static string ConnectionString { get; private set; } = string.Empty;
 
     [STAThread]
@@ -19,6 +20,7 @@ internal static class Program
         var auth = new AdminAuthService(new SqlCustomerUserRepository(connectionString));
         var reader = new AdminReadService(connectionString);
         Catalog = new AdminCatalogService(new SqlAdminCatalogRepository(connectionString));
+        Inventory = new B04InventoryService(new SqlB04InventoryRepository(connectionString));
         Application.Run(new LoginForm(auth, reader));
     }
 }
