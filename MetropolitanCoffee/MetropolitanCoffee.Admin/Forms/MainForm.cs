@@ -154,12 +154,14 @@ public sealed class MainForm : Form
         var previous = _pageHost.Controls.Cast<Control>().ToArray();
         _pageHost.Controls.Clear();
         foreach (var control in previous) control.Dispose();
-        Control page = key == "dashboard"
-            ? new DashboardPage(_reader, Navigate)
-            : key == "products" ? new ProductsPage(Program.Catalog)
-            : key == "categories" ? new CategoriesPage(Program.Catalog)
-            : key == "pricing" ? new PricingPage(Program.Catalog)
-            : new AdminPage(key, _reader);
+        
+Control page = key == "dashboard" ? new DashboardPage(_reader, Navigate)
+    : key == "products" ? new ProductsPage(Program.Catalog)
+    : key == "categories" ? new CategoriesPage(Program.Catalog)
+    : key == "pricing" ? new PricingPage(Program.Catalog)
+    : key == "purchases" ? new PurchasesPage(Program.Purchases)
+    : new AdminPage(key, _reader);
+
         page.Dock = DockStyle.Fill;
         _pageHost.Controls.Add(page);
     }

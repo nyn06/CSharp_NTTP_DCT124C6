@@ -7,6 +7,7 @@ namespace MetropolitanCoffee.Admin;
 internal static class Program
 {
     internal static AdminCatalogService Catalog { get; private set; } = null!;
+    internal static PurchaseOrderService Purchases { get; private set; } = null!;
 
     [STAThread]
     private static void Main()
@@ -17,6 +18,7 @@ internal static class Program
         var auth = new AdminAuthService(new SqlCustomerUserRepository(connectionString));
         var reader = new AdminReadService(connectionString);
         Catalog = new AdminCatalogService(new SqlAdminCatalogRepository(connectionString));
+        Purchases = new PurchaseOrderService(new SqlPurchaseOrderRepository(connectionString));
         Application.Run(new LoginForm(auth, reader));
     }
 }
