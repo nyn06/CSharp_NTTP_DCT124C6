@@ -144,7 +144,7 @@ public sealed class MainForm : Form
 
     private void Navigate(string key)
     {
-        _heading.Text = _nav[key].Text;
+        _heading.Text = key == "stock" ? "Inventory Management" : _nav[key].Text;
         foreach (var (name, button) in _nav)
         {
             button.Selected = name == key;
@@ -159,6 +159,7 @@ public sealed class MainForm : Form
             : key == "products" ? new ProductsPage(Program.Catalog)
             : key == "categories" ? new CategoriesPage(Program.Catalog)
             : key == "pricing" ? new PricingPage(Program.Catalog)
+            : key == "stock" ? new B04InventoryPage(Program.Inventory)
             : new AdminPage(key, _reader);
         page.Dock = DockStyle.Fill;
         _pageHost.Controls.Add(page);
