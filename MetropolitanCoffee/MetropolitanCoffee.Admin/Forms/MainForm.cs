@@ -163,6 +163,7 @@ public sealed class MainForm : Form
             : key == "users" ? new CustomersPage(Program.ConnectionString)
             : key == "stock" ? new B04InventoryPage(Program.Inventory)
             : key == "orders" ? new OrdersPage(_reader)
+            : key == "purchases" ? new PurchasesPage(Program.Purchases)
             : new AdminPage(key, _reader);
         page.Dock = DockStyle.Fill;
         _pageHost.Controls.Add(page);
