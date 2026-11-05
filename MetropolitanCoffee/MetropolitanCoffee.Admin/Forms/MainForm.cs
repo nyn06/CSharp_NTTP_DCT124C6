@@ -1,4 +1,5 @@
 using MetropolitanCoffee.Admin.Ui;
+using MetropolitanCoffee.Admin.Customers;
 using MetropolitanCoffee.Services;
 
 namespace MetropolitanCoffee.Admin.Forms;
@@ -159,7 +160,9 @@ public sealed class MainForm : Form
             : key == "products" ? new ProductsPage(Program.Catalog)
             : key == "categories" ? new CategoriesPage(Program.Catalog)
             : key == "pricing" ? new PricingPage(Program.Catalog)
+            : key == "users" ? new CustomersPage(Program.ConnectionString)
             : key == "stock" ? new B04InventoryPage(Program.Inventory)
+            : key == "orders" ? new OrdersPage(_reader)
             : new AdminPage(key, _reader);
         page.Dock = DockStyle.Fill;
         _pageHost.Controls.Add(page);
