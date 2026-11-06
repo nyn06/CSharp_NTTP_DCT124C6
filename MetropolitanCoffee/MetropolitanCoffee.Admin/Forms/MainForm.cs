@@ -147,6 +147,7 @@ public sealed class MainForm : Form
     {
         _heading.Text = key == "stock"
             ? "Inventory Management"
+            : key == "orders" ? "Administration"
             : _nav[key].Text;
         foreach (var (name, button) in _nav)
         {
@@ -165,6 +166,7 @@ public sealed class MainForm : Form
             : key == "products" ? new ProductsPage(Program.Catalog)
             : key == "categories" ? new CategoriesPage(Program.Catalog)
             : key == "pricing" ? new PricingPage(Program.Catalog)
+            : key == "orders" ? new OrdersPage(_reader)
             : new AdminPage(key, _reader);
         page.Dock = DockStyle.Fill;
         _pageHost.Controls.Add(page);

@@ -12,6 +12,8 @@ internal static class Program
 
     internal static PurchaseOrderService Purchases { get; private set; } = null!;
 
+    internal static AdminOrderService Orders { get; private set; } = null!;
+
     internal static B04InventoryService Inventory { get; private set; } = null!;
 
     [STAThread]
@@ -24,6 +26,8 @@ internal static class Program
         var auth = new AdminAuthService(new SqlCustomerUserRepository(connectionString));
         var reader = new AdminReadService(connectionString);
         Catalog = new AdminCatalogService(new SqlAdminCatalogRepository(connectionString));
+        Orders = new AdminOrderService(
+            new SqlAdminOrderRepository(connectionString));
         Purchases = new PurchaseOrderService(
             new SqlPurchaseOrderRepository(connectionString));
         Inventory = new B04InventoryService(
