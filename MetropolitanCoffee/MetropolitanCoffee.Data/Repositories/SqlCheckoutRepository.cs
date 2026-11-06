@@ -65,7 +65,7 @@ public sealed class SqlCheckoutRepository(string connectionString) : ICheckoutRe
             if (preview.Issues.Count > 0)
                 return new CheckoutResult(false, Error: "Some items are no longer available in the requested quantity.", Issues: preview.Issues);
             if (preview.Subtotal != quotedTotal)
-                return new CheckoutResult(false, Error: "The price has changed. Please review the updated total and confirm again.");
+                return new CheckoutResult(false, Error: "Product prices have changed. Please review your updated total before placing your order.");
 
             var paymentCode = payment switch { "BANK" => "bank", "ONLINE" => "online", _ => "cash" };
             var status = payment == "ONLINE" ? "confirmed" : "pending";
@@ -198,6 +198,84 @@ public sealed class SqlCheckoutRepository(string connectionString) : ICheckoutRe
             ShipCity = order.ShipCity, ShipWard = order.ShipWard, ShipAddress = order.ShipAddress, Note = order.Note,
             Items = items
         };
+    }
+
+    public async Task<bool> CancelOrderAsync(int userId, int orderId, CancellationToken ct = default)
+    {
+        await using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync(ct);
+        await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
+        try
+        {
+            // The guarded update owns the order row for the rest of the transaction.
+            await using (var cancel = NewCommand(connection, transaction, """
+                UPDATE dbo.Orders SET Status=N'cancelled', UpdatedAt=SYSUTCDATETIME()
+                WHERE Id=@OrderId AND UserId=@UserId AND Status=N'pending'
+                """))
+            {
+                cancel.Parameters.Add("@OrderId", SqlDbType.Int).Value = orderId;
+                cancel.Parameters.Add("@UserId", SqlDbType.Int).Value = userId;
+                if (await cancel.ExecuteNonQueryAsync(ct) != 1)
+                {
+                    await transaction.RollbackAsync(CancellationToken.None);
+                    return false;
+                }
+            }
+
+            var items = new List<(int Id, int ProductId, int Quantity)>();
+            await using (var read = NewCommand(connection, transaction,
+                "SELECT Id, ProductId, Quantity FROM dbo.OrderItems WHERE OrderId=@OrderId ORDER BY Id"))
+            {
+                read.Parameters.Add("@OrderId", SqlDbType.Int).Value = orderId;
+                await using var reader = await read.ExecuteReaderAsync(ct);
+                while (await reader.ReadAsync(ct)) items.Add((reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2)));
+            }
+
+            foreach (var item in items)
+            {
+                await using var movement = NewCommand(connection, transaction, """
+                    INSERT INTO dbo.StockMovements (ProductId, MovementType, QuantityDelta, OrderItemId)
+                    VALUES (@ProductId, N'sale_cancel', @Quantity, @ItemId)
+                    """);
+                movement.Parameters.Add("@ProductId", SqlDbType.Int).Value = item.ProductId;
+                movement.Parameters.Add("@Quantity", SqlDbType.Int).Value = item.Quantity;
+                movement.Parameters.Add("@ItemId", SqlDbType.Int).Value = item.Id;
+                await movement.ExecuteNonQueryAsync(ct);
+            }
+
+            foreach (var group in items.GroupBy(item => item.ProductId).OrderBy(group => group.Key))
+            {
+                await using var stock = NewCommand(connection, transaction,
+                    "UPDATE dbo.Products SET Quantity=Quantity+@Quantity WHERE Id=@ProductId");
+                stock.Parameters.Add("@ProductId", SqlDbType.Int).Value = group.Key;
+                stock.Parameters.Add("@Quantity", SqlDbType.Int).Value = group.Sum(item => item.Quantity);
+                if (await stock.ExecuteNonQueryAsync(ct) != 1)
+                    throw new InvalidOperationException("An order product could not be restored.");
+            }
+
+            await transaction.CommitAsync(ct);
+            return true;
+        }
+        catch
+        {
+            await transaction.RollbackAsync(CancellationToken.None);
+            throw;
+        }
+    }
+
+    public async Task<bool> UpdateDeliveryAddressAsync(int userId, int orderId, string address, string ward, CancellationToken ct = default)
+    {
+        await using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync(ct);
+        await using var update = new SqlCommand("""
+            UPDATE dbo.Orders SET ShipAddress=@Address, ShipWard=@Ward, UpdatedAt=SYSUTCDATETIME()
+            WHERE Id=@OrderId AND UserId=@UserId AND Status=N'pending'
+            """, connection);
+        update.Parameters.Add("@Address", SqlDbType.NVarChar, 255).Value = address;
+        update.Parameters.Add("@Ward", SqlDbType.NVarChar, 100).Value = ward;
+        update.Parameters.Add("@OrderId", SqlDbType.Int).Value = orderId;
+        update.Parameters.Add("@UserId", SqlDbType.Int).Value = userId;
+        return await update.ExecuteNonQueryAsync(ct) == 1;
     }
 
     private static async Task<List<CheckoutLine>> LoadLinesAsync(SqlConnection connection, SqlTransaction? transaction, int userId, BuyNowSelection? buyNow, bool lockProducts, CancellationToken ct)

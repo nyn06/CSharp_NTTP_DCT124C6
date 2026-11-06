@@ -7,13 +7,14 @@
   <p class="section-title mb-1">Secure Payment</p><h2>Checkout</h2>
   <a href="@backUrl" class="btn btn-back btn-sm mb-3">@(Model.BuyNow ? "← Back to Menu" : "← Back to Cart")</a>
   <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+  @if (ViewData["PricesChanged"] is true) { <div class="alert alert-warning" role="status">Product prices have changed. Please review your updated total before placing your order.</div> }
   @if (Model.Preview.Issues.Count > 0)
   {
     <div class="alert alert-danger"><ul class="mb-0">@foreach (var issue in Model.Preview.Issues) { <li>@issue</li> }</ul></div>
   }
   <form asp-action="Place" method="post" id="checkoutForm">
     @Html.AntiForgeryToken()
-    <input asp-for="BuyNow" type="hidden"><input asp-for="RequestId" type="hidden">
+    <input asp-for="BuyNow" type="hidden"><input asp-for="RequestId" type="hidden"><input asp-for="QuoteVersion" type="hidden">
     <div class="row g-4 mt-1 align-items-stretch">
       <div class="col-lg-7"><div class="card p-4 h-100">
         <h5 class="section-subtitle mb-3">Shipping Information</h5>

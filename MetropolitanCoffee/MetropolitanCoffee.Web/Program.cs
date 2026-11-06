@@ -3,6 +3,7 @@
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<MetropolitanCoffee.Core.Repositories.ICustomerUserRepository>(provider => new MetropolitanCoffee.Data.Repositories.SqlCustomerUserRepository(provider.GetRequiredService<IConfiguration>().GetConnectionString("MetropolitanCoffee") ?? throw new InvalidOperationException("Missing MetropolitanCoffee connection string.")));
 builder.Services.AddScoped<MetropolitanCoffee.Services.CustomerAuthService>();
+builder.Services.AddScoped<MetropolitanCoffee.Services.CustomerAccountService>();
 builder.Services.AddScoped<MetropolitanCoffee.Core.Repositories.ICartRepository>(provider => new MetropolitanCoffee.Data.Repositories.SqlCartRepository(provider.GetRequiredService<IConfiguration>().GetConnectionString("MetropolitanCoffee") ?? throw new InvalidOperationException("Missing MetropolitanCoffee connection string.")));
 builder.Services.AddScoped<MetropolitanCoffee.Services.CartService>();
 builder.Services.AddScoped<MetropolitanCoffee.Core.Repositories.ICheckoutRepository>(provider => new MetropolitanCoffee.Data.Repositories.SqlCheckoutRepository(provider.GetRequiredService<IConfiguration>().GetConnectionString("MetropolitanCoffee") ?? throw new InvalidOperationException("Missing MetropolitanCoffee connection string.")));

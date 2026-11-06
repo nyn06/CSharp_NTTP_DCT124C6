@@ -7,3 +7,5 @@ public sealed class CartSnapshot
     public int TotalQuantity => Items.Where(item => !item.IsSoldOut).Sum(item => item.Quantity);
     public bool HasSoldOut => Items.Any(item => item.IsSoldOut);
 }
+
+public sealed record CartPriceSyncResult(CartSnapshot Snapshot, int UpdatedLines);
