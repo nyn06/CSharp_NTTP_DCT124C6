@@ -102,7 +102,10 @@ internal sealed class CategoriesPage : UserControl
     private async Task EditAsync(AdminCategory? category)
     {
         using var form = new CategoryEditorForm(_catalog, category);
-        if (form.ShowDialog(this) == DialogResult.OK) await RefreshAsync();
+        if (form.ShowDialog(this) != DialogResult.OK) return;
+        await RefreshAsync();
+        MessageBox.Show(this, category is null ? "Category added successfully." : "Category updated successfully.",
+            "Categories", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 
     private async Task DeleteAsync(AdminCategory category)

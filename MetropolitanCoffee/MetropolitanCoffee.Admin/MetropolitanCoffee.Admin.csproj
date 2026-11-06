@@ -15,6 +15,11 @@
              CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="..\MetropolitanCoffee.Web\wwwroot\assets\img\*.jpg;..\MetropolitanCoffee.Web\wwwroot\assets\img\*.jpeg;..\MetropolitanCoffee.Web\wwwroot\assets\img\*.png;..\MetropolitanCoffee.Web\wwwroot\assets\img\*.webp"
+             Link="Assets\Products\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>

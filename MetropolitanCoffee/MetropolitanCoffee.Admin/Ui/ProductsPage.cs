@@ -31,6 +31,10 @@ internal sealed class ProductsPage : UserControl
         var productsTab = new TabPage("Products") { BackColor = AdminTheme.Canvas, Padding = new Padding(4) };
         var categoriesTab = new TabPage("Categories") { BackColor = AdminTheme.Canvas, Padding = new Padding(4) };
         tabs.TabPages.AddRange([productsTab, categoriesTab]);
+        tabs.SelectedIndexChanged += async (_, _) =>
+        {
+            if (tabs.SelectedTab == productsTab) await RefreshAsync();
+        };
         categoriesTab.Controls.Add(new CategoriesPage(_catalog));
         var root = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2 };
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 54));
@@ -138,9 +142,31 @@ internal sealed class ProductsPage : UserControl
 
     private async Task EditAsync(AdminProduct? product)
     {
-        if (product is not null) product = await _catalog.GetProductAsync(product.Id);
-        using var dialog = new ProductEditorForm(_catalog, product);
-        if (dialog.ShowDialog(this) == DialogResult.OK) await RefreshAsync();
+        try
+        {
+            if (product is not null)
+            {
+                product = await _catalog.GetProductAsync(product.Id);
+                if (product is null)
+                {
+                    MessageBox.Show(this, "Product no longer exists. Refresh the list.", "Products",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    await RefreshAsync();
+                    return;
+                }
+            }
+            using var dialog = new ProductEditorForm(_catalog, product);
+            if (dialog.ShowDialog(this) != DialogResult.OK) return;
+            await RefreshAsync();
+            MessageBox.Show(this, product is null ? "Product added successfully." : "Product updated successfully.",
+                "Products", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(this, "Unable to open the product editor.", "Products",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            System.Diagnostics.Debug.WriteLine(ex);
+        }
     }
 
     private async Task DeleteAsync(AdminProduct product)

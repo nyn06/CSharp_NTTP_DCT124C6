@@ -79,8 +79,47 @@ public sealed class LoginForm : Form
         fields.Controls.Add(_username);
         fields.Controls.Add(Theme.Label("Mật khẩu", 9, FontStyle.Bold));
         _password.AutoSize = false;
-        _password.Margin = new Padding(0, 0, 0, 8);
-        fields.Controls.Add(_password);
+        var passwordField = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0, 0, 0, 8) };
+        var togglePassword = new Button
+        {
+            Dock = DockStyle.Right, Width = 34, FlatStyle = FlatStyle.Flat,
+            BackColor = Color.White, ForeColor = Theme.Coffee, Cursor = Cursors.Hand,
+            AccessibleName = "Hiện mật khẩu", TabIndex = 1
+        };
+        togglePassword.FlatAppearance.BorderColor = Theme.Border;
+        togglePassword.Paint += (_, e) =>
+        {
+            var graphics = e.Graphics;
+            var state = graphics.Save();
+            graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            float scale = togglePassword.DeviceDpi / 96f;
+            graphics.TranslateTransform(togglePassword.ClientSize.Width / 2f, togglePassword.ClientSize.Height / 2f);
+            graphics.ScaleTransform(scale, scale);
+            using var pen = new Pen(Theme.Coffee, 1.6f);
+            using var eye = new System.Drawing.Drawing2D.GraphicsPath();
+            eye.AddBezier(-10, 0, -5, -8, 5, -8, 10, 0);
+            eye.AddBezier(10, 0, 5, 8, -5, 8, -10, 0);
+            graphics.DrawPath(pen, eye);
+            graphics.DrawEllipse(pen, -2.5f, -2.5f, 5, 5);
+            if (_password.UseSystemPasswordChar)
+                graphics.DrawLine(pen, -10, -8, 10, 8);
+            graphics.Restore(state);
+        };
+        togglePassword.Click += (_, _) =>
+        {
+            int selectionStart = _password.SelectionStart;
+            int selectionLength = _password.SelectionLength;
+            _password.UseSystemPasswordChar = !_password.UseSystemPasswordChar;
+            togglePassword.AccessibleName = _password.UseSystemPasswordChar ? "Hiện mật khẩu" : "Ẩn mật khẩu";
+            togglePassword.Invalidate();
+            _password.Focus();
+            _password.Select(selectionStart, selectionLength);
+        };
+        _password.Margin = Padding.Empty;
+        _password.TabIndex = 0;
+        passwordField.Controls.Add(_password);
+        passwordField.Controls.Add(togglePassword);
+        fields.Controls.Add(passwordField);
         _submit.AutoSize = false;
         _submit.Margin = Padding.Empty;
         _submit.Dock = DockStyle.Fill;

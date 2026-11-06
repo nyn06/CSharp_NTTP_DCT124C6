@@ -86,7 +86,12 @@ public sealed class AdminCatalogService(IAdminCatalogRepository repository)
         if (id <= 0) return new(false, "Select a product.");
         var error = ValidateProfit(profitPercent);
         if (error is not null) return new(false, error);
-        var price = await repository.UpdateProfitAsync(id, profitPercent, ct);
+        decimal? price;
+        try { price = await repository.UpdateProfitAsync(id, profitPercent, ct); }
+        catch (OverflowException)
+        {
+            return new(false, "Sell price exceeds the database limit (99,999,999.99). Reduce the profit percentage.");
+        }
         return price is null
             ? new(false, "Product not found.")
             : new(true, "Pricing updated successfully.", id, price);
