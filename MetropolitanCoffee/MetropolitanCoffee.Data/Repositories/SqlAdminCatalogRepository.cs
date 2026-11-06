@@ -205,7 +205,12 @@ public sealed class SqlAdminCatalogRepository(string connectionString) : IAdminC
             """);
         command.Parameters.Add("@Id", SqlDbType.Int).Value = id;
         AddDecimal(command, "@Profit", profitPercent, 5, 2);
-        var value = await command.ExecuteScalarAsync(ct);
+        object? value;
+        try { value = await command.ExecuteScalarAsync(ct); }
+        catch (SqlException ex) when (ex.Number == 8115)
+        {
+            throw new OverflowException("Sell price exceeds the database decimal limit.", ex);
+        }
         await transaction.CommitAsync(ct);
         return value is decimal price ? price : null;
     }

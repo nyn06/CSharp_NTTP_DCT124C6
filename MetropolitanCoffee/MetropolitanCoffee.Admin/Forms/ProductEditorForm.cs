@@ -26,6 +26,7 @@ internal sealed class ProductEditorForm : Form
     private readonly Button _save = AdminTheme.Button("Save", true);
     private string? _selectedImagePath;
     private bool _removeImage;
+    private bool _dataLoaded;
 
     internal ProductEditorForm(AdminCatalogService catalog, AdminProduct? product)
     {
@@ -70,9 +71,14 @@ internal sealed class ProductEditorForm : Form
         AddField(fields, "Status", _status, 38);
         _status.Items.AddRange(["active", "inactive"]);
         _status.SelectedIndex = 0;
+        _category.SelectedIndexChanged += (_, _) =>
+        {
+            if (_dataLoaded && _product is not null && _category.SelectedItem is AdminCategory category)
+                SuggestOptionsForCategory(category.Name);
+        };
         _profit.ValueChanged += (_, _) => _sell.Text = $"${AdminCatalogService.CalculateSellPrice(_product?.CostPrice ?? 0, _profit.Value):N2}";
         _imageName.AutoSize = false;
-        _imageName.Width = 350;
+        _imageName.Width = 230;
         _error.AutoSize = false;
         _error.Dock = DockStyle.Fill;
         var footer = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2 };
@@ -95,7 +101,7 @@ internal sealed class ProductEditorForm : Form
     {
         var panel = new FlowLayoutPanel { Dock = DockStyle.Fill, WrapContents = false };
         panel.Controls.Add(_preview);
-        var commands = new FlowLayoutPanel { Width = 380, Height = 120, FlowDirection = FlowDirection.TopDown, WrapContents = false };
+        var commands = new FlowLayoutPanel { Width = 260, Height = 120, FlowDirection = FlowDirection.TopDown, WrapContents = false };
         commands.Controls.Add(_imageName);
         var browse = AdminTheme.Button("Browse Image");
         browse.Click += (_, _) =>
@@ -125,6 +131,29 @@ internal sealed class ProductEditorForm : Form
         table.Controls.Add(input, 1, row);
     }
 
+    private void SuggestOptionsForCategory(string categoryName)
+    {
+        var name = categoryName.ToLowerInvariant();
+        if (name.Contains("dessert"))
+        {
+            _size.Checked = false;
+            _ice.Checked = false;
+            _sugar.Checked = false;
+        }
+        else if (name.Contains("ice blended") || name.Contains("frappe"))
+        {
+            _size.Checked = true;
+            _ice.Checked = false;
+            _sugar.Checked = true;
+        }
+        else
+        {
+            _size.Checked = true;
+            _ice.Checked = true;
+            _sugar.Checked = true;
+        }
+    }
+
     private async Task LoadDataAsync()
     {
         try
@@ -141,12 +170,14 @@ internal sealed class ProductEditorForm : Form
             _description.Text = _product.Description ?? "";
             _ingredients.Text = _product.Ingredients ?? "";
             _profit.Value = Math.Clamp(_product.ProfitPercent, _profit.Minimum, _profit.Maximum);
+            _sell.Text = $"${_product.SellPrice:N2}";
             _status.SelectedItem = _product.Status;
             _size.Checked = _product.HasSize;
             _ice.Checked = _product.HasIce;
             _sugar.Checked = _product.HasSugar;
             _imageName.Text = _product.Image ?? "No image selected";
             SetPreview(_images.Load(_product.Image, _product.Id));
+            _dataLoaded = true;
         }
         catch (Exception ex) { _error.Text = "Unable to load product data."; System.Diagnostics.Debug.WriteLine(ex); }
     }

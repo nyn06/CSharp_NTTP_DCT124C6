@@ -1,3 +1,4 @@
+using MetropolitanCoffee.Admin.Customers;
 using MetropolitanCoffee.Admin.Ui;
 using MetropolitanCoffee.Services;
 
@@ -144,7 +145,10 @@ public sealed class MainForm : Form
 
     private void Navigate(string key)
     {
-        _heading.Text = _nav[key].Text;
+        _heading.Text = key == "stock"
+            ? "Inventory Management"
+            : key == "orders" ? "Administration"
+            : _nav[key].Text;
         foreach (var (name, button) in _nav)
         {
             button.Selected = name == key;
@@ -156,9 +160,13 @@ public sealed class MainForm : Form
         foreach (var control in previous) control.Dispose();
         Control page = key == "dashboard"
             ? new DashboardPage(_reader, Navigate)
+            : key == "users" ? new CustomersPage(Program.ConnectionString)
+            : key == "stock" ? new B04InventoryPage(Program.Inventory)
+            : key == "purchases" ? new PurchasesPage(Program.Purchases)
             : key == "products" ? new ProductsPage(Program.Catalog)
             : key == "categories" ? new CategoriesPage(Program.Catalog)
             : key == "pricing" ? new PricingPage(Program.Catalog)
+            : key == "orders" ? new OrdersPage(_reader)
             : new AdminPage(key, _reader);
         page.Dock = DockStyle.Fill;
         _pageHost.Controls.Add(page);

@@ -1,6 +1,7 @@
 using MetropolitanCoffee.Admin.Ui;
 using MetropolitanCoffee.Core.Models;
 using MetropolitanCoffee.Services;
+using System.Globalization;
 
 namespace MetropolitanCoffee.Admin.Forms;
 
@@ -8,10 +9,11 @@ internal sealed class PricingEditorForm : Form
 {
     private readonly AdminCatalogService _catalog;
     private readonly AdminProduct _product;
-    private readonly NumericUpDown _profit = new() { DecimalPlaces = 2, Maximum = 999.99m, Width = 160 };
+    private readonly ProfitInput _profit = new() { DecimalPlaces = 2, Maximum = 999.99m, Width = 160 };
     private readonly Label _preview = AdminTheme.Label("", 11, FontStyle.Bold);
     private readonly Label _error = AdminTheme.Label("", 9, color: Color.Firebrick);
     private readonly Button _save = AdminTheme.Button("Save", true);
+    private bool _saving;
 
     internal PricingEditorForm(AdminCatalogService catalog, AdminProduct product)
     {
@@ -55,22 +57,55 @@ internal sealed class PricingEditorForm : Form
         _save.Click += async (_, _) => await SaveAsync();
         AcceptButton = _save;
         CancelButton = cancel;
+        FormClosing += (_, e) => { if (_saving) e.Cancel = true; };
     }
 
     private void UpdatePreview() => _preview.Text = $"New Sell Price: ${AdminCatalogService.CalculateSellPrice(_product.CostPrice, _profit.Value):N2}";
 
     private async Task SaveAsync()
     {
+        if (_saving) return;
+        // Validate the typed text before NumericUpDown can silently clamp or round it.
+        if (!decimal.TryParse(_profit.Text, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign,
+                CultureInfo.CurrentCulture, out var profit) ||
+            profit < 0 || profit > 999.99m || decimal.Round(profit, 2) != profit)
+        {
+            _error.Text = "Enter a profit from 0 to 999.99 with up to two decimal places.";
+            return;
+        }
+        _profit.Value = profit;
+        if (AdminCatalogService.CalculateSellPrice(_product.CostPrice, profit) > 99999999.99m)
+        {
+            _error.Text = "Sell price exceeds the database limit (99,999,999.99).";
+            return;
+        }
+        _saving = true;
         _save.Enabled = false;
+        _profit.Enabled = false;
         _error.Text = "";
         try
         {
-            var result = await _catalog.UpdateProfitAsync(_product.Id, _profit.Value);
+            var result = await _catalog.UpdateProfitAsync(_product.Id, profit);
             if (!result.Success) { _error.Text = result.Message; return; }
+            MessageBox.Show(this, $"{result.Message}\nSell Price: ${result.SellPrice:N2}",
+                "Pricing", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            _saving = false;
             DialogResult = DialogResult.OK;
             Close();
         }
         catch (Exception ex) { _error.Text = "Unable to update pricing."; System.Diagnostics.Debug.WriteLine(ex); }
-        finally { _save.Enabled = true; }
+        finally { _saving = false; if (!IsDisposed) { _save.Enabled = true; _profit.Enabled = true; } }
+    }
+
+    private sealed class ProfitInput : NumericUpDown
+    {
+        protected override void ValidateEditText()
+        {
+            // Keep invalid input visible so Save can report it instead of silently changing it.
+            if (decimal.TryParse(Text, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign,
+                    CultureInfo.CurrentCulture, out var value) &&
+                value >= Minimum && value <= Maximum && decimal.Round(value, 2) == value)
+                base.ValidateEditText();
+        }
     }
 }

@@ -1,4 +1,5 @@
 using MetropolitanCoffee.Services;
+using MetropolitanCoffee.Core.Models;
 
 namespace MetropolitanCoffee.Admin.Ui;
 
@@ -9,6 +10,12 @@ internal sealed class DashboardPage : UserControl
     private readonly Label _products = new() { Text = "—" };
     private readonly Label _orders = new() { Text = "—" };
     private readonly Label _status = AdminTheme.Label("", 9, color: AdminTheme.Muted);
+    private readonly Button _refresh = AdminTheme.Button("Refresh");
+    private readonly System.Windows.Forms.Timer _syncTimer = new() { Interval = 5000 };
+    private readonly CancellationTokenSource _lifetime = new();
+    private AdminDashboardOrders? _lastOrders;
+    private bool _loading;
+    private bool _loaded;
 
     internal DashboardPage(AdminReadService reader, Action<string> navigate)
     {
@@ -17,9 +24,9 @@ internal sealed class DashboardPage : UserControl
         BackColor = AdminTheme.Canvas;
         AutoScroll = true;
 
-        var layout = new TableLayoutPanel { Dock = DockStyle.Top, Height = 420, ColumnCount = 1, RowCount = 3, Margin = Padding.Empty };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Top, Height = 444, ColumnCount = 1, RowCount = 3, Margin = Padding.Empty };
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 92));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 20));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 308));
         Controls.Add(layout);
         var cards = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 2, Margin = Padding.Empty };
@@ -50,12 +57,27 @@ internal sealed class DashboardPage : UserControl
         welcome.Controls.Add(subtitle);
         welcome.Controls.Add(title);
         layout.Controls.Add(welcome, 0, 0);
+        var toolbar = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1 };
+        toolbar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        toolbar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 110));
         _status.Dock = DockStyle.Fill;
         _status.AutoSize = false;
-        _status.Visible = false;
-        layout.Controls.Add(_status, 0, 1);
+        _status.TextAlign = ContentAlignment.MiddleLeft;
+        _refresh.Click += async (_, _) => await LoadCountsAsync();
+        toolbar.Controls.Add(_status, 0, 0);
+        toolbar.Controls.Add(_refresh, 1, 0);
+        layout.Controls.Add(toolbar, 0, 1);
 
-        Load += async (_, _) => await LoadCountsAsync();
+        _syncTimer.Tick += async (_, _) => await PollOrdersAsync();
+        Load += async (_, _) =>
+        {
+            await LoadCountsAsync();
+            if (!IsDisposed) _syncTimer.Start();
+        };
+        VisibleChanged += async (_, _) =>
+        {
+            if (Visible && _loaded) await PollOrdersAsync();
+        };
     }
 
     private static Panel CreateCard(string title, string iconGlyph, Color iconColor, object value, Action navigate)
@@ -99,24 +121,74 @@ internal sealed class DashboardPage : UserControl
         return card;
     }
 
-    private async Task LoadCountsAsync()
+    private Task LoadCountsAsync() => RefreshAsync(full: true);
+
+    private Task PollOrdersAsync()
     {
+        if (!Visible || FindForm()?.WindowState == FormWindowState.Minimized) return Task.CompletedTask;
+        return RefreshAsync(full: !_loaded);
+    }
+
+    private async Task RefreshAsync(bool full)
+    {
+        if (_loading || IsDisposed || _lifetime.IsCancellationRequested) return;
+        _loading = true;
+        _refresh.Enabled = false;
+        if (full) SetStatus("Loading statistics...", false);
         try
         {
-            var counts = await _reader.GetDashboardCountsAsync();
-            if (IsDisposed) return;
-            _users.Text = counts.Users.ToString("N0");
-            _products.Text = counts.Products.ToString("N0");
-            _orders.Text = counts.Orders.ToString("N0");
-            _status.Text = "";
-            _status.Visible = false;
+            AdminDashboardOrders orders;
+            if (full)
+            {
+                var snapshot = await _reader.GetDashboardAsync(_lifetime.Token);
+                if (IsDisposed || _lifetime.IsCancellationRequested) return;
+                _users.Text = snapshot.Users.ToString("N0");
+                _products.Text = snapshot.Products.ToString("N0");
+                orders = snapshot.Orders;
+            }
+            else orders = await _reader.GetDashboardOrdersAsync(_lifetime.Token);
+            if (IsDisposed || _lifetime.IsCancellationRequested) return;
+            _orders.Text = orders.Count.ToString("N0");
+            var message = _lastOrders is not null && orders.LatestId > _lastOrders.LatestId
+                ? "A new order just arrived. Dashboard count updated automatically."
+                : _lastOrders is not null && orders != _lastOrders
+                    ? "Order changes were synced automatically."
+                    : "Statistics up to date. Orders sync every 5 seconds.";
+            _lastOrders = orders;
+            _loaded = true;
+            SetStatus(message, false);
         }
+        catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
         catch (Exception ex)
         {
-            if (IsDisposed) return;
-            _status.Text = "Unable to load statistics from SQL Server.";
-            _status.Visible = true;
+            if (IsDisposed || _lifetime.IsCancellationRequested) return;
+            SetStatus(_loaded
+                ? "Unable to refresh statistics. Showing previous values. Please try Refresh."
+                : "Unable to load statistics from SQL Server. Please try Refresh.", true);
             System.Diagnostics.Debug.WriteLine(ex);
         }
+        finally
+        {
+            _loading = false;
+            if (!IsDisposed) _refresh.Enabled = true;
+        }
+    }
+
+    private void SetStatus(string message, bool error)
+    {
+        _status.Text = message;
+        _status.ForeColor = error ? Color.Firebrick : AdminTheme.Muted;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing && !_lifetime.IsCancellationRequested)
+        {
+            _syncTimer.Stop();
+            _syncTimer.Dispose();
+            _lifetime.Cancel();
+            _lifetime.Dispose();
+        }
+        base.Dispose(disposing);
     }
 }
