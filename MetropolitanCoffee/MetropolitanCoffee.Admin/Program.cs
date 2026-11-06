@@ -1,17 +1,33 @@
-namespace MetropolitanCoffee.Admin
+using MetropolitanCoffee.Admin.Forms;
+using MetropolitanCoffee.Data.Repositories;
+using MetropolitanCoffee.Services;
+
+namespace MetropolitanCoffee.Admin;
+
+internal static class Program
 {
-    internal static class Program
+    internal static string ConnectionString { get; private set; } = string.Empty;
+
+    internal static AdminCatalogService Catalog { get; private set; } = null!;
+
+    internal static PurchaseOrderService Purchases { get; private set; } = null!;
+
+    internal static B04InventoryService Inventory { get; private set; } = null!;
+
+    [STAThread]
+    private static void Main()
     {
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        static void Main()
-        {
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
-            ApplicationConfiguration.Initialize();
-            Application.Run(new Form1());
-        }
+        ApplicationConfiguration.Initialize();
+        var connectionString = Environment.GetEnvironmentVariable("METROPOLITANCOFFEE_CONNECTION")
+            ?? "Server=localhost;Database=MetropolitanCoffeeDB;Integrated Security=True;Encrypt=True;TrustServerCertificate=True";
+        ConnectionString = connectionString;
+        var auth = new AdminAuthService(new SqlCustomerUserRepository(connectionString));
+        var reader = new AdminReadService(connectionString);
+        Catalog = new AdminCatalogService(new SqlAdminCatalogRepository(connectionString));
+        Purchases = new PurchaseOrderService(
+            new SqlPurchaseOrderRepository(connectionString));
+        Inventory = new B04InventoryService(
+            new SqlB04InventoryRepository(connectionString));
+        Application.Run(new LoginForm(auth, reader));
     }
 }

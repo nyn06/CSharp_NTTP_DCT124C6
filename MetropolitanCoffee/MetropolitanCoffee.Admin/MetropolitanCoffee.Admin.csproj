@@ -2,7 +2,17 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MetropolitanCoffee.Core\MetropolitanCoffee.Core.csproj" />
+    <ProjectReference Include="..\MetropolitanCoffee.Data\MetropolitanCoffee.Data.csproj" />
     <ProjectReference Include="..\MetropolitanCoffee.Services\MetropolitanCoffee.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\MetropolitanCoffee.Web\wwwroot\assets\img\bg1.jpg;..\MetropolitanCoffee.Web\wwwroot\assets\img\bg2.jpg;..\MetropolitanCoffee.Web\wwwroot\assets\img\bg3.jpg"
+             Link="Assets\LoginSlideshow\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\MetropolitanCoffee.Web\wwwroot\assets\img\MetropolitanCafeLogo.png"
+             Link="Assets\Admin\MetropolitanCafeLogo.png"
+             CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <PropertyGroup>
